@@ -2,9 +2,12 @@
   "name": "eion",
   "version": "0.0.1",
   "description": "File manager build on top of electron",
-  "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "compile": "webpack --config webpack.config.js --progress --colors",
+    "pre-build": "node build/pre-build.js",
+    "build-app": "node build/build.js",
+    "build": "npm run pre-build && npm run compile && npm run build-app"
   },
   "keywords": [
     "file",
@@ -12,5 +15,23 @@
     "electron"
   ],
   "author": "YurySolovyov",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "babel-core": "^6.10.4",
+    "babel-loader": "^6.2.4",
+    "babel-preset-react": "^6.11.1",
+    "basscss": "^8.0.1",
+    "bluebird": "^3.4.1",
+    "css-loader": "^0.23.1",
+    "electron-packager": "^7.2.0",
+    "extract-text-webpack-plugin": "^1.0.1",
+    "react": "^15.2.0",
+    "react-dom": "^15.2.0",
+    "react-router": "^2.5.2",
+    "rimraf": "^2.5.3",
+    "style-loader": "^0.13.1",
+    "stylus": "^0.54.5",
+    "stylus-loader": "^2.1.1",
+    "webpack": "^1.13.1"
+  }
 }
