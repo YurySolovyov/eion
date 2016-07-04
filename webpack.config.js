@@ -1,10 +1,6 @@
 'use strict';
 const path = require('path');
 const webpack = require('webpack');
-const minificationConfig = new webpack.optimize.UglifyJsPlugin({
-    output: { comments: false }
-});
-
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 module.exports = {
@@ -39,7 +35,6 @@ module.exports = {
   },
 
   plugins: [
-    // minificationConfig,
     new ExtractTextPlugin('style.css', { allChunks: true })
   ],
 };
