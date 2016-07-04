@@ -5,9 +5,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "compile": "webpack --config webpack.config.js --progress --colors",
-    "pre-build": "node build/pre-build.js",
+    "clean": "node build/clean.js",
     "build-app": "node build/build.js",
-    "build": "npm run pre-build && npm run compile && npm run build-app"
+    "build": "npm run compile && npm run build-app"
   },
   "keywords": [
     "file",
