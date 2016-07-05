@@ -11,6 +11,8 @@ module.exports = {
     filename: 'app.js'
   },
 
+  cache: true,
+
   module: {
     loaders: [{
       test: /\.styl$/,
