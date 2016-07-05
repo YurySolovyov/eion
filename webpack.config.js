@@ -31,7 +31,8 @@ module.exports = {
   resolve: {
     alias: {
       basscss: path.join(__dirname, 'node_modules/basscss/css/basscss.css')
-    }
+    },
+    extensions: ["", ".js", ".jsx"]
   },
 
   plugins: [
