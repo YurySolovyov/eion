@@ -8,7 +8,7 @@
     "clean": "node build/clean.js",
     "build-app": "node build/build.js",
     "build": "npm run compile && npm run build-app",
-    "start": "npm run build && node server.js"
+    "start": "node server.js"
   },
   "keywords": [
     "file",
@@ -23,6 +23,7 @@
     "babel-preset-react": "^6.11.1",
     "basscss": "^8.0.1",
     "bluebird": "^3.4.1",
+    "copy-webpack-plugin": "^3.0.1",
     "css-loader": "^0.23.1",
     "electron-packager": "^7.2.0",
     "express": "^4.14.0",

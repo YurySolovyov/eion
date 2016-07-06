@@ -2,6 +2,8 @@
 const path = require('path');
 const webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+const WebpackShellPlugin = require('webpack-shell-plugin');
 
 const config = {
   context: __dirname,
@@ -40,6 +42,13 @@ const config = {
   },
 
   plugins: [
+    new CopyWebpackPlugin([
+      { from: './src/index.html' },
+      { from: './src/index.js' },
+      { from: './package.json' },
+    ], {
+      copyUnmodified: true
+    }),
     new ExtractTextPlugin('style.css', { allChunks: true })
   ],
 };

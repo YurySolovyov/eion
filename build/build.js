@@ -3,11 +3,6 @@ console.time('Build');
 
 const path = require('path');
 const packager = require('electron-packager');
-const copyFileSync = require('./copy-file-sync');
-
-copyFileSync(path.resolve('./package.json'), './src/compiled/package.json');
-copyFileSync(path.resolve('./src/index.js'), './src/compiled/index.js');
-copyFileSync(path.resolve('./src/index.html'), './src/compiled/index.html');
 
 const pack = require('../package.json');
 const options = {
