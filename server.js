@@ -1,7 +1,6 @@
 const express = require('express');
 const webpack = require('webpack');
 const webpackDevMiddleware = require('webpack-dev-middleware');
-const webpackHotMiddleware = require('webpack-hot-middleware');
 
 const config = require('./webpack.config');
 
@@ -14,7 +13,5 @@ app.use(webpackDevMiddleware(compiler, {
     colors: true
   }
 }));
-
-app.use(webpackHotMiddleware(compiler));
 
 app.listen(9090);
