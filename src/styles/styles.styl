@@ -8,12 +8,14 @@ body
   background-color: rgba(0, 153, 204, 1)
   height: 100vh
   width: 50vw
-  flex-direction: column;
+  flex-direction: column
+  overflow-y: scroll
+  overflow-x: hidden
 
 .directory-item
   line-height: 24px
-  width: 100%
   background-color: rgba(255, 255, 255, 0.1)
   cursor: default
+  user-select: none
   &:hover
     background-color: rgba(255, 255, 255, 0.25)

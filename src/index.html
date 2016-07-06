@@ -6,13 +6,13 @@
     <script defer>
       (function() {
         const script = document.createElement('script');
-        script.src = process.env.ENV === 'development' ? 'http://localhost:9090/dist/app.js' : 'app.js';
+        script.src = process.env.ENV === 'dev' ? 'http://localhost:9090/dist/app.js' : 'app.js';
         script.defer = true;
         document.head.appendChild(script);
 
         const styles = document.createElement('link');
         styles.rel = "stylesheet";
-        styles.href = process.env.ENV === 'development' ? 'http://localhost:9090/dist/style.css' : 'style.css';
+        styles.href = process.env.ENV === 'dev' ? 'http://localhost:9090/dist/style.css' : 'style.css';
         document.head.appendChild(styles);
       }());
     </script>

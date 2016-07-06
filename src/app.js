@@ -4,15 +4,22 @@ require('basscss');
 require('./styles/styles.styl');
 
 const React = require('react');
-const ReactDOM = require('react-dom');
+const { render } = require('react-dom');
 const { Route, IndexRoute, Router, hashHistory } = require('react-router');
+const { Provider } = require('react-redux');
+
 const App = require('./app/components/app');
+const Panels = require('./app/components/panels');
 
-const routes = (
-  <Route component={ App } path='/' />
-);
+const store = require('./app/stores/store');
 
-ReactDOM.render(
-  <Router routes={ routes } history={ hashHistory } />,
+render(
+  <Provider store={store}>
+    <Router history={hashHistory}>
+      <Route path='/' component={ App }>
+        <IndexRoute component={ Panels } />
+      </Route>
+    </Router>
+  </Provider>,
   document.getElementById('root')
 );

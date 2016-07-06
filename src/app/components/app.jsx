@@ -1,22 +1,19 @@
-const React = require('react');
-const Panel = require('./panel');
+const { bindActionCreators } = require('redux');
+const { connect } = require('react-redux');
+const actionCreators = require('../actions/action-creators');
 
-const DirectoryService = require('../services/directory-service');
+const Main = require('./main');
 
-module.exports = React.createClass({
-  render: function() {
-    const items = DirectoryService.getDirectoryItems();
-    return (
-      <div id="container">
-        <div id="panelsContainer" className="flex">
-          <Panel
-            id="leftPanel"
-            items={items} />
-          <Panel
-            id="rightPanel"
-            items={items} />
-        </div>
-      </div>
-    );
-  }
-});
+const mapStateToProps = function(state) {
+  return {
+    leftPanel: state.panels.left,
+    rightPanel: state.panels.right,
+    currentPanel: state.panels.current
+  };
+};
+
+const mapDispatchToProps = function(dispatch) {
+  return bindActionCreators(actionCreators, dispatch);
+};
+
+module.exports = connect(mapStateToProps, mapDispatchToProps)(Main);

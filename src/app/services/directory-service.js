@@ -1,11 +1,23 @@
 const path = __non_webpack_require__('path');
 const fs = __non_webpack_require__('fs');
-const app = __non_webpack_require__('electron').remote.app;
+const { shell, remote } = __non_webpack_require__('electron');
+const app = remote.app;
 
-let currentPath = path.dirname(app.getPath('exe'));
+
+const getInitialPath = function() {
+  return path.dirname(app.getPath('exe'));
+};
+
+const getDirectoryItems = function(directoryPath) {
+  return fs.readdirSync(directoryPath);
+};
+
+const openPath = function(pathToOpen) {
+  shell.openExternal(pathToOpen);
+};
 
 module.exports = {
-  getDirectoryItems: function() {
-    return fs.readdirSync(currentPath);
-  }
+  getInitialPath,
+  getDirectoryItems,
+  openPath
 };
