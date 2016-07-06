@@ -2,9 +2,20 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>Hello World!</title>
-    <link rel="stylesheet" href="style.css" />
-    <script async src="app.js"></script>
+    <title>Eion</title>
+    <script defer>
+      (function() {
+        const script = document.createElement('script');
+        script.src = process.env.ENV === 'development' ? 'http://localhost:9090/dist/app.js' : 'app.js';
+        script.defer = true;
+        document.head.appendChild(script);
+
+        const styles = document.createElement('link');
+        styles.rel = "stylesheet";
+        styles.href = process.env.ENV === 'development' ? 'http://localhost:9090/dist/style.css' : 'style.css';
+        document.head.appendChild(styles);
+      }());
+    </script>
   </head>
   <body class="m0">
     <div id="root"></div>

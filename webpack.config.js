@@ -3,11 +3,13 @@ const path = require('path');
 const webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
-module.exports = {
+const config = {
   context: __dirname,
   entry: './src/app.js',
+
   output: {
     path: path.join(__dirname, '/src/compiled'),
+    publicPath: 'http://localhost:9090/dist/',
     filename: 'app.js'
   },
 
@@ -41,3 +43,5 @@ module.exports = {
     new ExtractTextPlugin('style.css', { allChunks: true })
   ],
 };
+
+module.exports = config;

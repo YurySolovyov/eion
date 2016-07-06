@@ -7,7 +7,8 @@
     "compile": "webpack --config webpack.config.js --progress --colors",
     "clean": "node build/clean.js",
     "build-app": "node build/build.js",
-    "build": "npm run compile && npm run build-app"
+    "build": "npm run compile && npm run build-app",
+    "start": "npm run build && node server.js"
   },
   "keywords": [
     "file",
@@ -24,6 +25,7 @@
     "bluebird": "^3.4.1",
     "css-loader": "^0.23.1",
     "electron-packager": "^7.2.0",
+    "express": "^4.14.0",
     "extract-text-webpack-plugin": "^1.0.1",
     "react": "^15.2.0",
     "react-dom": "^15.2.0",
@@ -32,6 +34,7 @@
     "style-loader": "^0.13.1",
     "stylus": "^0.54.5",
     "stylus-loader": "^2.1.1",
-    "webpack": "^1.13.1"
+    "webpack": "^1.13.1",
+    "webpack-dev-middleware": "^1.6.1"
   }
 }
