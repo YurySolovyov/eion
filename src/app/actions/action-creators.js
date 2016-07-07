@@ -13,10 +13,10 @@ module.exports = {
     };
   },
 
-  activatePanel: function(index) {
+  activatePanel: function(id) {
     return {
       type: 'ACTIVATE_PANEL',
-      index
+      id
     };
   }
 };

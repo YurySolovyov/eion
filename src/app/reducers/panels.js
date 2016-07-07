@@ -27,6 +27,10 @@ module.exports = function panels(state = {}, action) {
       return state;
     },
 
+    ACTIVATE_PANEL: () => {
+      return Object.assign({}, state, { current: action.id });
+    },
+
     default: () => {
       return state;
     }
