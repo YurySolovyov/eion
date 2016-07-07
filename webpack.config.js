@@ -3,10 +3,13 @@ const path = require('path');
 const webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const NodeEnvironmentPlugin = webpack.NodeEnvironmentPlugin;
 
 const config = {
   context: __dirname,
   entry: './src/app.js',
+
+  target: 'electron',
 
   output: {
     path: path.join(__dirname, '/src/compiled'),
@@ -30,6 +33,9 @@ const config = {
       query: {
         presets: ['react']
       }
+    }, {
+      test: /\.(eot|woff|ttf)([\?]?.*)$/,
+      loader: 'url-loader?name=fonts/[name].[ext]',
     }]
   },
 
@@ -48,6 +54,7 @@ const config = {
     ], {
       copyUnmodified: true
     }),
+    new NodeEnvironmentPlugin(),
     new ExtractTextPlugin('style.css', { allChunks: true })
   ],
 };

@@ -1,11 +1,20 @@
+@font-face {
+    font-family: OpenSans;
+    src: url('~open-sans-fontface/fonts/Regular/OpenSans-Regular.ttf');
+}
+
+main-bg= #e5e5e6
+
 html
   height: 100%
 
 body
   height: 100%
+  background-color: main-bg
+  font-family: OpenSans;
+  font-size: 16px
 
 .panel
-  background-color: rgba(0, 153, 204, 1)
   height: 100vh
   width: 50vw
   flex-direction: column
@@ -14,8 +23,9 @@ body
 
 .directory-item
   line-height: 24px
-  background-color: rgba(255, 255, 255, 0.1)
   cursor: default
-  user-select: none
+  -webkit-user-select: none
+  font-size: 0.875rem
+  border-bottom: 1px rgba(0, 0, 0, 0.05)
   &:hover
-    background-color: rgba(255, 255, 255, 0.25)
+    background-color: rgba(126, 127, 129, 0.1)

@@ -1,6 +1,6 @@
-const path = __non_webpack_require__('path');
-const fs = __non_webpack_require__('fs');
-const { shell, remote } = __non_webpack_require__('electron');
+const path = require('path');
+const fs = require('fs');
+const { shell, remote } = require('electron');
 const app = remote.app;
 
 
