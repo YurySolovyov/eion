@@ -1,18 +1,17 @@
-const path = __non_webpack_require__('path');
+const path = require('path');
 const match = require('pamach');
 const DirectoryService = require('../services/directory-service');
 
 module.exports = function panels(state = {}, action) {
   return match(action.type) ({
     NAVIGATE: () => {
-      const currentPanel = state.current;
-      const currentPath = state[currentPanel].currentPath;
-      const newPath = path.resolve(currentPath, action.path);
+      const currentPanel = action.panel || state.current;
+      const newPath = action.path;
 
       return Object.assign({}, state, {
         [currentPanel]: {
           currentPath: newPath,
-          directoryItems: DirectoryService.getDirectoryItems(newPath)
+          directoryItems: action.items
         }
       });
     },

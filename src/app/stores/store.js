@@ -1,24 +1,25 @@
-const { createStore, compose } = require('redux');
+const { createStore, compose, applyMiddleware } = require('redux');
+const thunk = require('redux-thunk').default;
 const rootReducer = require('../reducers/index');
 const DirectoryService = require('../services/directory-service');
 
 const initialPath = DirectoryService.getInitialPath();
-const initialItems = DirectoryService.getDirectoryItems(initialPath);
 
 const defaultState = {
   panels: {
     left: {
       currentPath: initialPath,
-      directoryItems: initialItems
+      directoryItems: []
     },
     right: {
       currentPath: initialPath,
-      directoryItems: initialItems
+      directoryItems: []
     },
     current: 'right'
   }
 };
 
-const store = createStore(rootReducer, defaultState);
+const store = createStore(rootReducer, defaultState, applyMiddleware(thunk));
+DirectoryService.iniialize(store, initialPath, initialPath);
 
 module.exports = store;

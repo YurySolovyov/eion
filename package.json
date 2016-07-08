@@ -22,7 +22,8 @@
     "url": "https://github.com/YurySolovyov/eion"
   },
   "dependencies": {
-    "open-sans-fontface": "^1.4.0"
+    "open-sans-fontface": "^1.4.0",
+    "redux-thunk": "^2.1.0"
   },
   "devDependencies": {
     "babel-core": "^6.10.4",

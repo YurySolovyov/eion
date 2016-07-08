@@ -1,5 +1,6 @@
+const Promise = require('bluebird');
 const path = require('path');
-const fs = require('fs');
+const fs = Promise.promisifyAll(require('fs'));
 const { shell, remote } = require('electron');
 const app = remote.app;
 
@@ -9,14 +10,37 @@ const getInitialPath = function() {
 };
 
 const getDirectoryItems = function(directoryPath) {
-  return fs.readdirSync(directoryPath);
+  return fs.readdirAsync(directoryPath);
 };
 
 const openPath = function(pathToOpen) {
   shell.openExternal(pathToOpen);
 };
 
+const iniialize = function(store, leftPanelPath, rightPanelPath) {
+  const leftDirs = getDirectoryItems(leftPanelPath);
+  const rightDirs = getDirectoryItems(rightPanelPath);
+  Promise.join(leftDirs, rightDirs).then(function(results) {
+    const [leftPanelItems, rightPanelItems] = results;
+
+    store.dispatch({
+      type: 'NAVIGATE',
+      path: leftPanelPath,
+      items: leftPanelItems,
+      panel: 'left'
+    });
+
+    store.dispatch({
+      type: 'NAVIGATE',
+      path: rightPanelPath,
+      items: rightPanelItems,
+      panel: 'right'
+    });
+  });
+};
+
 module.exports = {
+  iniialize,
   getInitialPath,
   getDirectoryItems,
   openPath
