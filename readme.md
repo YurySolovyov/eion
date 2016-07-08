@@ -4,7 +4,7 @@
 
 This is still on early stage.
 
-![](screenshot.PNG)
+![](screenshot.png)
 
 ### License
 
