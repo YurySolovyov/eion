@@ -36,6 +36,10 @@ const config = {
     }, {
       test: /\.(eot|woff|ttf)([\?]?.*)$/,
       loader: 'url-loader?name=fonts/[name].[ext]',
+    }, {
+      test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
+      loader: 'url?mimetype=image/svg+xml',
+      include: /node_modules/
     }]
   },
 

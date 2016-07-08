@@ -17,7 +17,6 @@ module.exports = function panels(state = {}, action) {
     },
 
     OPEN: () => {
-      // does not work yet, needs a way to tell if path is dir.
       const currentPanel = state.current;
       const currentPath = state[currentPanel].currentPath;
       const openPath = path.join(currentPath, action.item);

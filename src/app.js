@@ -2,6 +2,7 @@
 
 require('basscss');
 require('./styles/styles.styl');
+require('font-awesome/css/font-awesome.css');
 
 const React = require('react');
 const { render } = require('react-dom');

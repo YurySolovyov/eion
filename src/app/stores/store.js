@@ -5,15 +5,20 @@ const DirectoryService = require('../services/directory-service');
 
 const initialPath = DirectoryService.getInitialPath();
 
+const defaultDirectoryItems = {
+  files: [],
+  directories: []
+};
+
 const defaultState = {
   panels: {
     left: {
       currentPath: initialPath,
-      directoryItems: []
+      directoryItems: defaultDirectoryItems
     },
     right: {
       currentPath: initialPath,
-      directoryItems: []
+      directoryItems: defaultDirectoryItems
     },
     current: 'right'
   }

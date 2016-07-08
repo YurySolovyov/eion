@@ -1,17 +1,15 @@
 const Promise = require('bluebird');
 const path = require('path');
-const fs = Promise.promisifyAll(require('fs'));
 const { shell, remote } = require('electron');
-const app = remote.app;
+const { app } = remote;
+const walkdir = require('./directory-walker');
 
 
 const getInitialPath = function() {
   return path.dirname(app.getPath('exe'));
 };
 
-const getDirectoryItems = function(directoryPath) {
-  return fs.readdirAsync(directoryPath);
-};
+const getDirectoryItems = walkdir;
 
 const openPath = function(pathToOpen) {
   shell.openExternal(pathToOpen);
