@@ -8,7 +8,8 @@ const mapStateToProps = function(state) {
   return {
     leftPanel: state.panels.left,
     rightPanel: state.panels.right,
-    currentPanel: state.panels.current
+    currentPanel: state.panels.current,
+    locations: state.panels.locations
   };
 };
 

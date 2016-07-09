@@ -29,6 +29,10 @@ module.exports = function panels(state = {}, action) {
       return Object.assign({}, state, { current: action.id });
     },
 
+    UPDATE_LOCATIONS: () => {
+      return Object.assign({}, state, { locations: action.locations });
+    },
+
     default: () => {
       return state;
     }

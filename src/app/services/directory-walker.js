@@ -1,6 +1,10 @@
 const Promise = require('bluebird');
 const filewalker = require('filewalker');
-const walkerOptions = { recursive: false, maxPending: 7 };
+const walkerOptions = {
+  recursive: false,
+  maxPending: 7,
+  maxAttempts: 0
+};
 
 const getWalker = Promise.promisify(function(path, results, callback) {
   return filewalker(path, walkerOptions).on('file', function(name, stats, absolute) {

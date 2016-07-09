@@ -15,7 +15,7 @@ const openPath = function(pathToOpen) {
   shell.openExternal(pathToOpen);
 };
 
-const iniialize = function(store, leftPanelPath, rightPanelPath) {
+const initialize = function(store, leftPanelPath, rightPanelPath) {
   const leftDirs = getDirectoryItems(leftPanelPath);
   const rightDirs = getDirectoryItems(rightPanelPath);
   Promise.join(leftDirs, rightDirs).then(function(results) {
@@ -38,7 +38,7 @@ const iniialize = function(store, leftPanelPath, rightPanelPath) {
 };
 
 module.exports = {
-  iniialize,
+  initialize,
   getInitialPath,
   getDirectoryItems,
   openPath

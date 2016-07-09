@@ -22,7 +22,7 @@ module.exports = React.createClass({
 
   render: function() {
     return (
-      <div className="directory-list m2">
+      <div className="directory-list mx2">
         {this.renderItem('up', '..', 'dir')}
         {this.renderItems(this.props.items.directories, 'dir')}
         {this.renderItems(this.props.items.files, 'file')}

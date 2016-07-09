@@ -19,16 +19,20 @@ const navigate = function(navigation) {
 };
 
 const open = function(item) {
-  return {
-    type: 'OPEN',
-    item
+  return function(dispatch) {
+    dispatch({
+      type: 'OPEN',
+      item
+    });
   };
 };
 
 const activatePanel = function(id) {
-  return {
-    type: 'ACTIVATE_PANEL',
-    id
+  return function(dispatch) {
+    dispatch({
+      type: 'ACTIVATE_PANEL',
+      id
+    });
   };
 };
 

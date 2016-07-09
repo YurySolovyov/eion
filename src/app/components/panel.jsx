@@ -1,5 +1,6 @@
 const React = require('react');
 const DirectoryList = require('./directory-list');
+const Locations = require('./locations');
 
 module.exports = React.createClass({
 
@@ -14,6 +15,7 @@ module.exports = React.createClass({
         className={`panel flex ${ active ? 'active' : '' }`}
         id={this.props.id}
         onClick={this.handleClick}>
+        <Locations {...this.props} />
         <DirectoryList
           {...this.props}
           navigate={this.props.navigate}
