@@ -9,7 +9,7 @@ const options = {
   dir: './src/compiled',
   platform: ['win32', 'linux'],
   arch: ['x64'],
-  version: '1.2.5',
+  version: '1.2.6',
 
   prune: true,
   overwrite: true,
@@ -18,5 +18,7 @@ const options = {
 
 packager(options, function (err, appPath) {
   console.timeEnd('Build');
-  console.log(err, appPath);
+  if (err) {
+    console.log(err, appPath);
+  }
 });

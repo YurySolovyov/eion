@@ -4,6 +4,8 @@ require('basscss');
 require('./styles/styles.styl');
 require('font-awesome/css/font-awesome.css');
 
+const { ipcRenderer } = require('electron');
+
 const React = require('react');
 const { render } = require('react-dom');
 const { Route, IndexRoute, Router, hashHistory } = require('react-router');
@@ -24,3 +26,9 @@ render(
   </Provider>,
   document.getElementById('root')
 );
+
+window.addEventListener('keypress', function(e) {
+  if (e.shiftKey === true && e.ctrlKey === true && e.code === 'KeyI') {
+    ipcRenderer.send('toggleDevTools');
+  }
+}, false);
