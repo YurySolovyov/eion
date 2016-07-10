@@ -19,7 +19,7 @@ module.exports = React.createClass({
   render: function() {
     const panel = this.props[this.props.id+"Panel"];
     return (
-      <div className="locations flex m2">
+      <div className="locations m2">
         {this.renderItems(this.props.locations, panel.currentPath)}
       </div>
     );

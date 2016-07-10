@@ -1,34 +1,49 @@
-const Promise = require('bluebird');
-const filewalker = require('filewalker');
-const walkerOptions = {
-  recursive: false,
-  maxPending: 7,
-  maxAttempts: 0
-};
+const path = require('path');
+const walker = require('./promise-walker');
 
-const getWalker = Promise.promisify(function(path, results, callback) {
-  return filewalker(path, walkerOptions).on('file', function(name, stats, absolute) {
-    results.files.push({
-      name,
-      stats,
-      absolute
-    });
-  }).on('dir', function(name, stats, absolute) {
-    results.directories.push({
-      name,
-      stats,
-      absolute
-    });
-  }).on('done', function() {
-    callback(null, results);
-  }).on('error', function(err) {
-    callback(err);
-  }).walk();
-});
-
-module.exports = function walkdir(path) {
-  return getWalker(path, {
+const walk = function(directoryPath) {
+  const results = {
     files: [],
     directories: []
+  };
+
+  return walker(directoryPath).then(function(items) {
+    items.forEach(function(item) {
+      if (item.stat) {
+        if (item.stat.isDirectory()) {
+          results.directories.push({
+            name: path.basename(item.path),
+            stat: item.stat,
+            absolute: item.path
+          });
+        } else if(item.stat.isFile()) {
+          results.files.push({
+            name: path.basename(item.path),
+            stat: item.stat,
+            absolute: item.path
+          });
+        }
+      } else {
+        if (path.extname(item.path) === '') {
+          results.directories.push({
+            name: path.basename(item.path),
+            stat: null,
+            absolute: item.path
+          });
+        } else {
+          results.files.push({
+            name: path.basename(item.path),
+            stat: null,
+            absolute: item.path
+          });
+        }
+      }
+    });
+
+    return results;
   });
+};
+
+module.exports = function walkdir(path) {
+  return walk(path);
 };

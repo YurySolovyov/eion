@@ -24,7 +24,6 @@
   "dependencies": {
     "basscss": "^8.0.1",
     "bluebird": "^3.4.1",
-    "filewalker": "^0.1.3",
     "font-awesome": "^4.6.3",
     "open-sans-fontface": "^1.4.0",
     "pamach": "^0.1.0",
