@@ -3,7 +3,9 @@
   "version": "0.0.1",
   "description": "File manager build on top of electron",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "npm run test:fast && npm run test:backend",
+    "test:fast": "ava --verbose test/fast",
+    "test:backend": "ava --verbose test/backend",
     "compile": "webpack --config webpack.config.js --progress --colors",
     "clean": "node build/clean.js",
     "build-app": "node build/build.js",
@@ -38,6 +40,7 @@
     "split-lines": "^1.1.0"
   },
   "devDependencies": {
+    "ava": "^0.15.2",
     "babel-core": "^6.10.4",
     "babel-loader": "^6.2.4",
     "babel-preset-react": "^6.11.1",
@@ -47,7 +50,9 @@
     "express": "^4.14.0",
     "extract-text-webpack-plugin": "^1.0.1",
     "file-loader": "^0.9.0",
+    "redux-mock-store": "^1.1.2",
     "rimraf": "^2.5.3",
+    "spectron": "^3.2.6",
     "style-loader": "^0.13.1",
     "stylus": "^0.54.5",
     "stylus-loader": "^2.1.1",

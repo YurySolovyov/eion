@@ -1,14 +1,14 @@
 const path = require('path');
-const DirectoryService = require('../services/directory-service');
 
 const navigate = function(navigation) {
-  return function(dispatch, getState) {
+  return function(dispatch, getState, services) {
+    const { DirectoryService } = services;
 
     const state = getState();
     const currentPath = state.panels[state.panels.current].currentPath;
     const newPath = path.resolve(currentPath, navigation);
 
-    DirectoryService.getDirectoryItems(newPath).then(function(items) {
+    return DirectoryService.getDirectoryItems(newPath).then(function(items) {
       dispatch({
         type: 'NAVIGATE',
         path: newPath,

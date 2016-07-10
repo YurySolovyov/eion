@@ -26,7 +26,10 @@ const defaultState = {
   },
 };
 
-const store = createStore(rootReducer, defaultState, applyMiddleware(thunk));
+const thunkMiddleware = thunk.withExtraArgument({
+  DirectoryService
+});
+const store = createStore(rootReducer, defaultState, applyMiddleware());
 DirectoryService.initialize(store, initialPath, initialPath);
 LocationsService.initialize(store);
 
