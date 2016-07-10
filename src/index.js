@@ -3,9 +3,12 @@ const { app, BrowserWindow, ipcMain } = require('electron');
 let win;
 
 const createWindow = function () {
-  win = new BrowserWindow({ width: 800, height: 600 });
-  win.maximize();
+  win = new BrowserWindow({ show: false });
   win.loadURL(`file://${__dirname}/index.html`);
+
+  win.once('ready-to-show', () => {
+    win.maximize();
+  });
 
   win.on('closed', () => {
     win = null;
