@@ -49,5 +49,5 @@
 
         (garden :styles-var 'eion.styles.core/base
                 :output-to  "styles.css"
-                :pretty-print false)
+                :pretty-print true)
         (target)))

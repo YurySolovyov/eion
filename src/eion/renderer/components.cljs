@@ -6,12 +6,12 @@
     (fn []
       [:div { :class "directory-list" }
         (for [item @items]
-          [:div { :key (:key item) :class "directory-item" } (:key item)])])))
+          [:div { :key (:key item) :class "directory-item p1" } (:key item)])])))
 
 (defn panels []
   [:div#panels
-    [:div#panels-container
-      [:div#left-panel { :class "panel" }
+    [:div#panels-container {:class "flex" }
+      [:div#left-panel { :class "panel flex" }
         [directory-list :left-panel]]
-      [:div#right-panel { :class "panel" }
+      [:div#right-panel { :class "panel flex" }
         [directory-list :right-panel]]]])
