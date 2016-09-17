@@ -9,9 +9,9 @@
           [:div { :key (:key item) :class "directory-item" } (:key item)])])))
 
 (defn panels []
-  ([:div#panels
+  [:div#panels
     [:div#panels-container
       [:div#left-panel { :class "panel" }
         [directory-list :left-panel]]
       [:div#right-panel { :class "panel" }
-        [directory-list :right-panel]]]]))
+        [directory-list :right-panel]]]])

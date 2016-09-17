@@ -38,6 +38,7 @@
     (swap! app-db assoc :left-panel (async/<! left-channel))
     (swap! app-db assoc :right-panel (async/<! right-channel))
     (dispatch [:update-panel :left-panel (:left-panel @app-db)])
+    (dispatch [:update-panel :right-panel (:right-panel @app-db)])
     ))
 
 (dispatch-sync [:init-panel :left-panel []])

@@ -8,20 +8,26 @@
                  [org.clojure/core.async "0.2.391"]
                  [reagent "0.6.0"]
                  [re-frame "0.8.0"]
+                 [org.martinklepsch/boot-garden "1.3.2-0"]
                  [adzerk/boot-cljs "1.7.228-1" :scope "test"]
                  [adzerk/boot-cljs-repl "0.3.3" :scope "test"]
                  [adzerk/boot-reload    "0.4.12"  :scope "test"]])
 
 (require
- '[adzerk.boot-cljs      :refer [cljs]]
- '[adzerk.boot-cljs-repl :refer [cljs-repl start-repl]]
- '[adzerk.boot-reload    :refer [reload]])
+ '[adzerk.boot-cljs              :refer [cljs]]
+ '[adzerk.boot-cljs-repl         :refer [cljs-repl start-repl]]
+ '[adzerk.boot-reload            :refer [reload]]
+ '[org.martinklepsch.boot-garden :refer [garden]])
+
+(deftask styles []
+  (comp (watch) (garden :styles-var 'creationist.styles/screen)))
 
 (deftask prod-build []
   (comp (cljs :ids #{"main"}
               :optimizations :simple)
         (cljs :ids #{"renderer"}
-              :optimizations :advanced)))
+              :optimizations :advanced))
+        (garden))
 
 (deftask dev-build []
   (comp ;; Inject REPL and reloading code into renderer build =======
@@ -40,4 +46,8 @@
         (cljs      :ids #{"main"}
                    :compiler-options {:asset-path "target/main.out"
                                       :closure-defines {'eion.main.core/dev? true}})
+
+        (garden :styles-var 'eion.styles.core/base
+                :output-to  "styles.css"
+                :pretty-print false)
         (target)))
