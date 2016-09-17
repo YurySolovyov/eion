@@ -1,0 +1,17 @@
+{
+  "name": "eion",
+  "version": "0.0.1",
+  "description": "File manager build on top of electron",
+  "main": "main.js",
+  "keywords": [
+    "file",
+    "manager",
+    "electron"
+  ],
+  "author": "YurySolovyov",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YurySolovyov/eion"
+  }
+}

@@ -1,0 +1,4 @@
+{
+  :require  [eion.renderer.core]
+  :init-fns [eion.renderer.core/init]
+}

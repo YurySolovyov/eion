@@ -1,0 +1,7 @@
+{
+  :require  [eion.main.core]
+  :init-fns [eion.main.core/init]
+  :compiler-options {
+    :target :nodejs
+  }
+}
