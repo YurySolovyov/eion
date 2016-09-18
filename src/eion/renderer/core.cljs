@@ -13,7 +13,10 @@
 (def ipc      (.-ipcRenderer electron))
 
 (def key-events (async/chan))
-(def app-db (r/atom {}))
+(def app-db (r/atom {
+  :left-panel []
+  :right-panel []
+  }))
 
 (defn init []
   nil)
@@ -40,9 +43,6 @@
     (dispatch [:update-panel :left-panel (:left-panel @app-db)])
     (dispatch [:update-panel :right-panel (:right-panel @app-db)])
     ))
-
-(dispatch-sync [:init-panel :left-panel []])
-(dispatch-sync [:init-panel :right-panel []])
 
 (r/render-component
   [components/panels]

@@ -14,9 +14,9 @@
   }]
 
   [:body {
+    :height "100%"
     :font-family "OpenSans"
-    :font-size   "16px"
-    :line-height 1.5
+    :font-size "16px"
   }]
 
   [:.panel {
