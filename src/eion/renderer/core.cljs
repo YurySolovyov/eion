@@ -2,21 +2,15 @@
   (:require-macros [cljs.core.async.macros :as async])
   (:require [goog.events :as events]
             [cljs.core.async :as async]
-            [eion.directories.core :as dirs]
             [eion.renderer.components :as components]
             [eion.renderer.events]
-            [eion.renderer.subscriptions]
             [reagent.core :as r]
-            [re-frame.core :refer [dispatch-sync dispatch]]))
+            [re-frame.core :refer [dispatch dispatch-sync]]))
 
 (def electron (js/require "electron"))
 (def ipc      (.-ipcRenderer electron))
 
 (def key-events (async/chan))
-(def app-db (r/atom {
-  :left-panel []
-  :right-panel []
-  }))
 
 (defn init []
   nil)
@@ -33,16 +27,11 @@
 
 (events/listen js/window (.-KEYPRESS events/EventType) (fn [ev] (async/put! key-events ev)))
 
-(async/go
-  (let [left-channel (async/chan)
-        right-channel (async/chan)]
-    (dirs/init-directory "." left-channel)
-    (dirs/init-directory "../" right-channel)
-    (swap! app-db assoc :left-panel (async/<! left-channel))
-    (swap! app-db assoc :right-panel (async/<! right-channel))
-    (dispatch [:update-panel :left-panel (:left-panel @app-db)])
-    (dispatch [:update-panel :right-panel (:right-panel @app-db)])
-    ))
+(dispatch-sync [:update-panel :left-panel []])
+(dispatch-sync [:update-panel :right-panel []])
+
+(dispatch [:navigate :left-panel "."])
+(dispatch [:navigate :right-panel "../"])
 
 (r/render-component
   [components/panels]

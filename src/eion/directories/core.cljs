@@ -10,13 +10,23 @@
   (.warn js/console e))
 
 (defn assign-clone [obj]
-  (js->clj (.assign js/Object (js-obj) obj )))
+  (js->clj (.assign js/Object (js-obj) obj) :keywordize-keys true))
 
 (defn join-path [dir item]
   (.join path dir item))
 
 (defn joined-items [dir items]
-  (mapv (partial join-path dir) (js->clj items)))
+  (mapv (fn [item] { :dir dir :name item }) (js->clj items)))
+
+(defn item-type [stat]
+  (cond
+    (.isFile stat) :file
+    (.isDirectory stat) :dir
+    (.isSymbolicLink stat) :link))
+
+(defn enhance-stat [file stat]
+  (let [type (item-type stat)]
+    (merge file {:type type} (assign-clone stat))))
 
 (defn read-directory [dir-path]
   (let [out (async/chan)]
@@ -26,10 +36,10 @@
         (async/close! out)))
     out))
 
-(defn stat-file [file-path out]
-  (.stat fs file-path
+(defn stat-file [file out]
+  (.lstat fs (join-path (:dir file) (:name file))
     (fn [err stat]
-      (async/put! out (if err err (merge {:key file-path} (assign-clone stat))))
+      (async/put! out (if err err (enhance-stat file stat)))
       (async/close! out)))
   out)
 

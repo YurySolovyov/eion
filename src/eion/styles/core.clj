@@ -6,7 +6,7 @@
 (defstyles base
   (at-font-face {
     :font-family "OpenSans"
-    :src "url('OpenSans-Regular.ttf')"
+    :src "url('fonts/OpenSans-Regular.ttf')"
   })
 
   [:html {
@@ -32,11 +32,21 @@
   }]
 
   [:.directory-item {
+    :display "flex"
     :line-height "24px"
     :cursor "default"
     :-webkit-user-select "none"
     :font-size "0.875rem"
     :border-bottom "1px rgba(0, 0, 0, 0.05)"
     :transition "0.2s"
-  }]
+  }
+    [:.directory-item-type {
+      :width "24px"
+      :color "#234154"
+    }]
+
+    [:.directory-item-name {
+      :flex "1"
+    }]
+  ]
 )
