@@ -3,19 +3,17 @@
             [cljs.core.async :as async]
             [eion.renderer.channels :refer [navigations]]))
 
-(defn navigaton-key [panel]
-  (case panel
-    :left-panel :left-panel-updating
-    :right-panel :right-panel-updating))
-
-(reg-fx :fetch-panel-items (fn [[panel path]]
-  (async/put! navigations { :panel panel :path path })))
+(reg-fx :fetch-panel-items (fn [[panel next-path]]
+  (async/put! navigations { :panel panel :path next-path })))
 
 (reg-event-db :update-panel (fn [db [_ panel value]]
-  (assoc db (navigaton-key panel) false)
-  (assoc db panel value)))
+  (-> db
+    (assoc-in [panel :updating] false)
+    (assoc-in [panel :items] value))))
 
-(reg-event-fx :navigate (fn [{:keys [db]} [_ panel path]]
-  { :db (assoc db (navigaton-key panel) true)
-    :fetch-panel-items [panel path]
+(reg-event-fx :navigate (fn [{:keys [db]} [_ panel new-path]]
+  { :db (-> db
+        (assoc-in [panel :updating] true)
+        (assoc-in [panel :current-path] new-path))
+    :fetch-panel-items [panel new-path]
   }))

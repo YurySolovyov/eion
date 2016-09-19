@@ -4,7 +4,7 @@
 
 (def path (js/require "path"))
 (def fs (js/require "fs"))
-(def concurrency 4)
+(def concurrency 64)
 
 (defn handle-error [e]
   (.warn js/console e))
@@ -12,11 +12,25 @@
 (defn assign-clone [obj]
   (js->clj (.assign js/Object (js-obj) obj) :keywordize-keys true))
 
-(defn join-path [dir item]
+(defn path-resolve [path-to-resolve]
+  (.resolve path path-to-resolve))
+
+(defn path-join [dir item]
   (.join path dir item))
 
+(defn up-link [dir-path]  
+  {
+    :fullpath (path-resolve (path-join dir-path ".."))
+    :type :none
+    :name ".."
+  })
+
 (defn joined-items [dir items]
-  (mapv (fn [item] { :dir dir :name item }) (js->clj items)))
+  (mapv (fn [item] {
+    :dir (path-resolve dir)
+    :name item
+    :fullpath (path-join (path-resolve dir) item)
+  }) (js->clj items)))
 
 (defn item-type [stat]
   (cond
@@ -37,7 +51,7 @@
     out))
 
 (defn stat-file [file out]
-  (.lstat fs (join-path (:dir file) (:name file))
+  (.lstat fs (path-join (:dir file) (:name file))
     (fn [err stat]
       (async/put! out (if err err (enhance-stat file stat)))
       (async/close! out)))
@@ -52,7 +66,7 @@
         (handle-error directory-items))
         (async/pipeline-async concurrency out stat-file in)
         (async/onto-chan in directory-items)
-        (async/<! (async/into [] out))
+        (async/<! (async/into [(up-link dir-path)] out))
       )))
 
 (defn init-directory [dir-path out]

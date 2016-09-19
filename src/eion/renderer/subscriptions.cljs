@@ -3,4 +3,4 @@
   (:require [re-frame.core :refer [reg-sub]]))
 
 (reg-sub :panel-items (fn [db [_ panel]]
-  (panel db)))
+  (get-in db [panel :items])))

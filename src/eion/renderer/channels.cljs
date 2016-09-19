@@ -7,9 +7,8 @@
 
 (def navigations (async/chan 2))
 
-(async/go
-  (let [{ path :path panel :panel } (async/<! navigations)
-        response-channel (async/chan)]
-    ; (.log js/console navigations)
+(async/go-loop [{ path :path panel :panel } (async/<! navigations)
+                response-channel (async/chan)]
     (dirs/init-directory path response-channel)
-    (dispatch [:update-panel panel (async/<! response-channel)])))
+    (dispatch [:update-panel panel (async/<! response-channel)])
+    (recur (async/<! navigations) (async/chan)))

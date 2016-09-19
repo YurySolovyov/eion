@@ -1,9 +1,10 @@
 (ns eion.renderer.core
   (:require-macros [cljs.core.async.macros :as async])
-  (:require [goog.events :as events]
-            [cljs.core.async :as async]
-            [eion.renderer.components :as components]
+  (:require [eion.renderer.components :as components]
             [eion.renderer.events]
+            [eion.directories.core :as dirs]
+            [goog.events :as events]            
+            [cljs.core.async :as async]
             [reagent.core :as r]
             [re-frame.core :refer [dispatch dispatch-sync]]))
 
@@ -30,8 +31,8 @@
 (dispatch-sync [:update-panel :left-panel []])
 (dispatch-sync [:update-panel :right-panel []])
 
-(dispatch [:navigate :left-panel "."])
-(dispatch [:navigate :right-panel "../"])
+(dispatch [:navigate :left-panel (dirs/path-resolve ".")])
+(dispatch [:navigate :right-panel (dirs/path-resolve "../")])
 
 (r/render-component
   [components/panels]
