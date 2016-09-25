@@ -6,9 +6,14 @@
 
 
 (def navigations (async/chan 2))
+(def file-activations (async/chan))
 
 (async/go-loop [{ path :path panel :panel } (async/<! navigations)
                 response-channel (async/chan)]
     (dirs/init-directory path response-channel)
     (dispatch [:update-panel panel (async/<! response-channel)])
     (recur (async/<! navigations) (async/chan)))
+
+(async/go-loop [activation (async/<! file-activations)]
+    (dirs/open-file activation)
+    (recur (async/<! file-activations)))

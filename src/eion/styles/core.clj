@@ -9,6 +9,23 @@
     :src "url('fonts/OpenSans-Regular.ttf')"
   })
 
+  ["::-webkit-scrollbar" {
+    :width "8px"
+  }]
+
+  ["::-webkit-scrollbar-thumb" {
+    :background-color "#ccc"
+    :background-clip "content-box"
+    :border "2px transparent solid"
+    :border-radius "4px"
+  }
+    [:&:hover :&:active {
+      :background-color "#2196F3"
+      :border-color "#2196F3"
+      :border-radius "0"
+    }]
+  ]
+
   [:html {
     :height "100%"
   }]

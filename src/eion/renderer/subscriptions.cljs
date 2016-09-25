@@ -4,3 +4,6 @@
 
 (reg-sub :panel-items (fn [db [_ panel]]
   (get-in db [panel :items])))
+
+(reg-sub :current-path (fn [db [_ panel]]
+  (get-in db [panel :current-path])))

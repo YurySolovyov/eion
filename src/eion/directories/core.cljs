@@ -2,6 +2,8 @@
   (:require-macros [cljs.core.async.macros :as async])
   (:require [cljs.core.async :as async]))
 
+(def electron (js/require "electron"))
+(def shell (.-shell electron))
 (def path (js/require "path"))
 (def fs (js/require "fs"))
 (def concurrency 64)
@@ -12,18 +14,23 @@
 (defn assign-clone [obj]
   (js->clj (.assign js/Object (js-obj) obj) :keywordize-keys true))
 
-(defn path-resolve [path-to-resolve]
-  (.resolve path path-to-resolve))
+(defn path-resolve [dir-path]
+  (.resolve path dir-path))
 
-(defn path-join [dir item]
-  (.join path dir item))
+(defn path-join [dir-path item]
+  (.join path dir-path item))
 
-(defn up-link [dir-path]  
-  {
-    :fullpath (path-resolve (path-join dir-path ".."))
-    :type :none
-    :name ".."
-  })
+(defn path-up [dir-path]
+  (path-resolve (path-join dir-path "..")))
+
+(defn split-dir [item]
+  (case (:type item)
+    :dir :dir
+    :file))
+
+(defn resort [items]
+  (let [grouped (group-by split-dir items)]
+    (vec (concat (:dir grouped) (:file grouped)))))
 
 (defn joined-items [dir items]
   (mapv (fn [item] {
@@ -66,9 +73,13 @@
         (handle-error directory-items))
         (async/pipeline-async concurrency out stat-file in)
         (async/onto-chan in directory-items)
-        (async/<! (async/into [(up-link dir-path)] out))
+        (async/<! (async/into [] out))
       )))
 
 (defn init-directory [dir-path out]
   (async/go
-    (async/>! out (async/<! (directory-contents dir-path)))))
+    (let [items (async/<! (directory-contents dir-path))]
+      (async/>! out (resort items)))))
+
+(defn open-file [file-path]
+  (.openItem shell file-path))

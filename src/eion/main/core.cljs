@@ -19,7 +19,7 @@
 (def main-window (atom nil))
 
 (defn mk-window [w h frame? show?]
-  (BrowserWindow. #js {:width w :height h :frame frame? :show show? }))
+  (BrowserWindow. #js {:width w :height h :frame frame? :show show? :autoHideMenuBar true }))
 
 (defn toggle-dev-tools []
   (.toggleDevTools @main-window))
