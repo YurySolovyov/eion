@@ -4,6 +4,9 @@
 
 (def icon-class "mdi mdi-18px ")
 
+(defn format-size [size]
+  (clojure.string/replace (str size) #"(\d)(?=(\d{3})+(?!\d))" "$1 "))
+
 (defn item-type-class [type]
   (case type
     :dir (str icon-class "mdi-folder")
@@ -13,7 +16,7 @@
 (defn item-size-label [item]
   (case (:type item)
     :dir "[dir]"
-    :file (:size item)
+    :file (format-size (:size item))
     :link "[link]"))
 
 (defn on-item-dblclick [item panel-name]

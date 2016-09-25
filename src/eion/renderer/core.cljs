@@ -3,7 +3,7 @@
   (:require [eion.renderer.components :as components]
             [eion.renderer.events]
             [eion.directories.core :as dirs]
-            [goog.events :as events]            
+            [goog.events :as events]
             [cljs.core.async :as async]
             [reagent.core :as r]
             [re-frame.core :refer [dispatch dispatch-sync]]))
