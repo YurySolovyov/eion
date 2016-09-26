@@ -1,6 +1,7 @@
 (ns eion.renderer.channels
   (:require-macros [cljs.core.async.macros :as async])
   (:require [eion.directories.core :as dirs]
+            [eion.bindings.electron :as electron]
             [cljs.core.async :as async]
             [re-frame.core :refer [dispatch]]))
 
@@ -15,5 +16,5 @@
     (recur (async/<! navigations) (async/chan)))
 
 (async/go-loop [activation (async/<! file-activations)]
-    (dirs/open-file activation)
+    (electron/open-item activation)
     (recur (async/<! file-activations)))

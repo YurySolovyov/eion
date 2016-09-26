@@ -2,7 +2,7 @@
   (:require-macros [cljs.core.async.macros :as async])
   (:require [eion.renderer.components :as components]
             [eion.renderer.events]
-            [eion.directories.core :as dirs]
+            [eion.bindings.node :as node]
             [goog.events :as events]
             [cljs.core.async :as async]
             [reagent.core :as r]
@@ -31,8 +31,8 @@
 (dispatch-sync [:update-panel :left-panel []])
 (dispatch-sync [:update-panel :right-panel []])
 
-(dispatch [:navigate :left-panel (dirs/path-resolve ".")])
-(dispatch [:navigate :right-panel (dirs/path-resolve "../")])
+(dispatch [:navigate :left-panel (node/path-resolve ".")])
+(dispatch [:navigate :right-panel (node/path-resolve "../")])
 
 (r/render-component
   [components/panels]
