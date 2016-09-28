@@ -37,8 +37,10 @@
     (.isSymbolicLink stat) :link))
 
 (defn enhance-stat [file stat]
-  (let [type (item-type stat)]
-    (merge file {:type type} (assign-clone stat))))
+  (let [type (item-type stat)
+        cloned-stat (assign-clone stat)
+        ext (if (= type :file) (node/path-ext (:name file)) "")]
+    (merge file {:type type :ext ext} cloned-stat)))
 
 (defn read-directory [dir-path]
   (async/go

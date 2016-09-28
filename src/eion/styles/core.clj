@@ -55,6 +55,7 @@
     :overflow-y "scroll"
     :overflow-x "hidden"
     :max-height "calc(100vh - 62px)"
+    :min-height "calc(100vh - 62px)"
     :flex-direction "column"
   }]
 
@@ -67,13 +68,23 @@
     :border-bottom "1px #E0E0E0 solid"
     :transition "0.2s"
   }
+
     [:.directory-item-type {
       :width "24px"
       :color "#234154"
     }]
 
     [:.directory-item-name {
-      :flex "1"
+      :flex "3"
     }]
+
+    [:.directory-item-meta {
+      :flex "1"
+    }
+      [:.directory-item-ext :.directory-item-size {
+        :flex "1"
+        :text-align "right"
+      }]
+    ]
   ]
 )

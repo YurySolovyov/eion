@@ -10,6 +10,9 @@
 (defn path-join [dir-path item]
   (.join path dir-path item))
 
+(defn path-ext [item-path]
+  (.extname path item-path))
+
 (defn fs-readdir
   ([dir-path] (fs-readdir dir-path (async/chan 1)))
   ([dir-path out-chan]

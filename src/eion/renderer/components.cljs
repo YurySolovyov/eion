@@ -33,15 +33,21 @@
     [:div { :class "panel-path p1 inline-block" } @panel-path]
   ])
 
+(defn directory-item [panel-name item]
+  [:div { :key (:name item)
+          :class "directory-item flex px1"
+          :on-double-click (partial on-item-dblclick item panel-name) }
+    [:div { :class (str "directory-item-type " (item-type-class (:type item))) }]
+    [:div { :class "directory-item-name"} (:name item)]
+    [:div { :class "directory-item-meta flex"}
+      [:div { :class "directory-item-ext"} (:ext item)]
+      [:div { :class "directory-item-size"} (item-size-label item)]
+    ]
+  ])
+
 (defn directory-list [panel-name items]
   [:div { :class "directory-list flex" }
-    (for [item @items]
-      [:div { :key (:name item)
-              :class "directory-item flex px1"
-              :on-double-click (partial on-item-dblclick item panel-name) }
-        [:div {:class (str "directory-item-type " (item-type-class (:type item))) }]
-        [:div {:class "directory-item-name"} (:name item)]
-        [:div {:class "directory-item-size"} (item-size-label item)]])])
+    (for [item @items] (directory-item panel-name item))])
 
 (defn panel [panel-name]
   (let [items (subscribe [:panel-items panel-name])
