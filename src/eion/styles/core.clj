@@ -47,6 +47,10 @@
     :box-shadow "#999 0 1px 2px"
   }]
 
+  [:.panel-controls {
+    :box-shadow "#ccc 0 1px 1px"
+  }]
+
   [:.directory-list {
     :overflow-y "scroll"
     :overflow-x "hidden"
@@ -60,7 +64,7 @@
     :cursor "default"
     :-webkit-user-select "none"
     :font-size "0.875em"
-    :border-bottom "1px rgba(0, 0, 0, 0.05)"
+    :border-bottom "1px #E0E0E0 solid"
     :transition "0.2s"
   }
     [:.directory-item-type {

@@ -48,7 +48,7 @@
         current-path (subscribe [:current-path panel-name])]
     (fn []
       [:div#left-panel { :class "panel flex p1 border-box" :id panel-name }
-        [:div.panel-container { :class "" }
+        [:div.panel-container
           [panel-controls panel-name current-path]
           [directory-list panel-name items]]
       ])))
