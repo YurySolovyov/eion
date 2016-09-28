@@ -26,7 +26,7 @@
   (dispatch [:navigate-up panel-name]))
 
 (defn panel-controls [panel-name panel-path]
-  [:div { :class "panel-controls" }
+  [:div { :class "panel-controls flex" }
     [:div {
       :class (str icon-class "mdi-chevron-up p1 inline-block")
       :on-click (partial on-up-click panel-name)}]
@@ -34,10 +34,10 @@
   ])
 
 (defn directory-list [panel-name items]
-  [:div { :class "directory-list" }
+  [:div { :class "directory-list flex" }
     (for [item @items]
       [:div { :key (:name item)
-              :class "directory-item p1"
+              :class "directory-item flex px1"
               :on-double-click (partial on-item-dblclick item panel-name) }
         [:div {:class (str "directory-item-type " (item-type-class (:type item))) }]
         [:div {:class "directory-item-name"} (:name item)]
@@ -47,9 +47,11 @@
   (let [items (subscribe [:panel-items panel-name])
         current-path (subscribe [:current-path panel-name])]
     (fn []
-      [:div#left-panel { :class "panel flex" :id panel-name }
-        [panel-controls panel-name current-path]
-        [directory-list panel-name items]])))
+      [:div#left-panel { :class "panel flex p1 border-box" :id panel-name }
+        [:div.panel-container { :class "" }
+          [panel-controls panel-name current-path]
+          [directory-list panel-name items]]
+      ])))
 
 (defn panels []
   [:div#panels
