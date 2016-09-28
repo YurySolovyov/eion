@@ -2,6 +2,10 @@
 
 Eion is a modern file manager built with web technologies.
 
+Screenshot:
+
+![Eion Screenshot](screenshot.png "Eion")
+
 ## Trying it out:
 
 0. [Install `boot`](https://github.com/boot-clj/boot#install)
