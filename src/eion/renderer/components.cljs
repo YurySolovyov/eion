@@ -25,14 +25,6 @@
 (defn on-up-click [panel-name]
   (dispatch [:navigate-up panel-name]))
 
-(defn panel-controls [panel-name panel-path]
-  [:div { :class "panel-controls flex" }
-    [:div {
-      :class (str icon-class "mdi-chevron-up p1 inline-block")
-      :on-click (partial on-up-click panel-name)}]
-    [:div { :class "panel-path p1 inline-block" } @panel-path]
-  ])
-
 (defn directory-item [panel-name item]
   [:div { :key (:name item)
           :class "directory-item flex px1"
@@ -46,17 +38,39 @@
   ])
 
 (defn directory-list [panel-name items]
-  [:div { :class "directory-list flex" }
-    (for [item @items] (directory-item panel-name item))])
+  [:div { :class "directory-items"}
+    [:div { :class "directory-list flex" }
+      (for [item @items] (directory-item panel-name item))]
+  ])
+
+(defn directory-path [panel-name]
+  (let [panel-path (subscribe [:current-path panel-name])]
+    (fn []
+      [:div.directory-path { :class "directory-path flex" }
+        [:div {
+          :class (str icon-class "mdi-chevron-up p1 inline-block")
+          :on-click (partial on-up-click panel-name)}]
+        [:div { :class "panel-path p1 inline-block" } @panel-path]
+      ])))
+
+(defn directory-list-header [panel-name]
+  [:div { :class "directory-list-header flex" }
+    [directory-path panel-name]
+    [:div { :class "directory-header flex px2" }
+      [:div { :class "directory-header-name mx2 flex" } "Name"]
+      [:div { :class "directory-header-ext flex" } "Type"]
+      [:div { :class "directory-header-size flex" } "Size"]
+    ]
+  ])
 
 (defn panel [panel-name]
-  (let [items (subscribe [:panel-items panel-name])
-        current-path (subscribe [:current-path panel-name])]
+  (let [items (subscribe [:panel-items panel-name])]
     (fn []
       [:div#left-panel { :class "panel flex p1 border-box" :id panel-name }
         [:div.panel-container
-          [panel-controls panel-name current-path]
-          [directory-list panel-name items]]
+          [directory-list-header panel-name]
+          [directory-list panel-name items]
+        ]
       ])))
 
 (defn panels []

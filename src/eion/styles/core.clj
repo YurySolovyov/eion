@@ -47,15 +47,34 @@
     :box-shadow "#999 0 1px 2px"
   }]
 
-  [:.panel-controls {
+  [:.directory-path {
+    :flex-direction "row"
+  }]
+
+  [:.directory-list-header {
+    :flex-direction "column"
     :box-shadow "#ccc 0 1px 1px"
   }]
+
+  [:.directory-header {
+    :line-height "3.5em"
+    :flex-direction "row"
+  }
+    [:.directory-header-name {
+      :flex "2"
+    }]
+
+    [:.directory-header-ext :.directory-header-size {
+      :flex "0.3"
+      :justify-content "flex-end";
+    }]
+  ]
 
   [:.directory-list {
     :overflow-y "scroll"
     :overflow-x "hidden"
-    :max-height "calc(100vh - 62px)"
-    :min-height "calc(100vh - 62px)"
+    :max-height "calc(100vh - 110px)"
+    :min-height "calc(100vh - 110px)"
     :flex-direction "column"
   }]
 
