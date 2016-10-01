@@ -15,9 +15,9 @@
 
 (defn item-size-label [item]
   (case (:type item)
-    :dir "[dir]"
+    :dir "<dir>"
     :file (format-size (:size item))
-    :link "[link]"))
+    :link "<link>"))
 
 (defn on-item-dblclick [item panel-name]
   (dispatch [:activate panel-name item]))

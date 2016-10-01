@@ -57,8 +57,9 @@
   }]
 
   [:.directory-header {
-    :line-height "3.5em"
+    :line-height "3.5rem"
     :flex-direction "row"
+    :font-size "0.875em"
   }
     [:.directory-header-name {
       :flex "2"
@@ -95,6 +96,10 @@
 
     [:.directory-item-name {
       :flex "3"
+      :text-overflow "ellipsis"
+      :word-wrap "break-word"
+      :white-space "nowrap"
+      :overflow "hidden"
     }]
 
     [:.directory-item-meta {
