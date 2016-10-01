@@ -3,13 +3,11 @@
   (:require [eion.renderer.components :as components]
             [eion.renderer.events]
             [eion.bindings.node :as node]
+            [eion.renderer.channels :refer [ipc]]
             [goog.events :as events]
             [cljs.core.async :as async]
             [reagent.core :as r]
             [re-frame.core :refer [dispatch dispatch-sync]]))
-
-(def electron (js/require "electron"))
-(def ipc      (.-ipcRenderer electron))
 
 (def key-events (async/chan))
 
@@ -17,7 +15,10 @@
   nil)
 
 (defn toggle-dev-tools []
-  (.send ipc "toggle-dev-tools"))
+  (async/put! ipc { :name "toggle-dev-tools" }))
+
+(defn send-ready []
+  (async/put! ipc { :name "ready" }))
 
 (enable-console-print!)
 
@@ -36,4 +37,5 @@
 
 (r/render-component
   [components/panels]
-  (.getElementById js/document "container"))
+  (.getElementById js/document "container")
+  send-ready)

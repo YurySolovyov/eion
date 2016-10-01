@@ -8,6 +8,7 @@
 
 (def navigations (async/chan 2))
 (def file-activations (async/chan))
+(def ipc (async/chan))
 
 (async/go-loop [{ path :path panel :panel } (async/<! navigations)
                 response-channel (async/chan)]
@@ -18,3 +19,7 @@
 (async/go-loop [activation (async/<! file-activations)]
     (electron/open-item activation)
     (recur (async/<! file-activations)))
+
+(async/go-loop [ipc-event (async/<! ipc)]
+  (electron/send-to-main ipc-event)
+  (recur (async/<! ipc)))

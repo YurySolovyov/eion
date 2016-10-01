@@ -18,20 +18,33 @@
 
 (def main-window (atom nil))
 
-(defn mk-window [w h frame? show?]
-  (BrowserWindow. #js {:width w :height h :frame frame? :show show? :autoHideMenuBar true }))
+(def default-window #js { :width 1000
+                          :heigh 1000
+                          :frame true
+                          :show false
+                          :autoHideMenuBar true })
+
+(defn create-window [window-props]
+  (BrowserWindow. window-props))
 
 (defn toggle-dev-tools []
   (.toggleDevTools @main-window))
 
+(defn show-main []
+  (.maximize @main-window))
+
+(defn deref-main []
+  (reset! main-window nil))
+
 (defn init-browser []
-  (reset! main-window (mk-window 1000 1000 true true))
-  (.maximize @main-window)
+  (reset! main-window (create-window default-window))
   (load-page @main-window)
-  (.on @main-window "closed" #(reset! main-window nil))
-  (.on ipc "toggle-dev-tools" toggle-dev-tools))
+  (.on @main-window "closed" deref-main)
+  (.on ipc "toggle-dev-tools" toggle-dev-tools)
+  (.on ipc "ready" show-main))
 
 (defn init []
+  (enable-console-print!)
   (.on app "window-all-closed" #(when-not (= js/process.platform "darwin") (.quit app)))
   (.on app "ready" init-browser)
   (set! *main-cli-fn* (fn [] nil)))
