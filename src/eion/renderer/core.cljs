@@ -3,6 +3,7 @@
   (:require [eion.renderer.components :as components]
             [eion.renderer.events]
             [eion.bindings.node :as node]
+            [eion.bindings.storage :as storage]
             [eion.renderer.channels :refer [ipc]]
             [goog.events :as events]
             [cljs.core.async :as async]

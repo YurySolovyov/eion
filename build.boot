@@ -9,6 +9,7 @@
                  [reagent "0.6.0"]
                  [re-frame "0.8.0"]
                  [org.martinklepsch/boot-garden "1.3.2-0"]
+                 [cljsjs/localforage "1.3.1-0"]
                  [adzerk/boot-cljs "1.7.228-1" :scope "test"]
                  [adzerk/boot-cljs-repl "0.3.3" :scope "test"]
                  [adzerk/boot-reload    "0.4.12"  :scope "test"]])
