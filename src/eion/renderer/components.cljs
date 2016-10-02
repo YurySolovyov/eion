@@ -7,6 +7,28 @@
 (defn format-size [size]
   (clojure.string/replace (str size) #"(\d)(?=(\d{3})+(?!\d))" "$1 "))
 
+(defn count-by-type [items]
+  (frequencies (map :type items)))
+
+(defn selected-caption [selected-count bytes]
+  (let [selected-counts (if (= selected-count 0) "" (str "Selected " selected-count " items"))
+        selected-size (if (= bytes 0) "" (str  " of " (format-size bytes) " bytes"))]
+    (str selected-counts selected-size)))
+
+(defn selected-file-size [items]
+  (reduce (fn [total item] (+ total (if (= (:type item) :file) (:size item) 0))) 0 items))
+
+(defn footer-message [items selection]
+  (let [total (count items)
+        { files :file directories :dir links :link } (count-by-type items)
+        total-items (str total " items. ")
+        items-counts (str (+ files links) " files and " directories " directories. ")
+        selected-size (selected-file-size selection)]
+      [:div { :class "directory-summary flex" }
+        [:div { :class "counts"} (str total-items items-counts)]
+        [:div { :class "selection"} (selected-caption (count selection) selected-size)]
+      ]))
+
 (defn item-type-class [type]
   (case type
     :dir (str icon-class "mdi-folder")
@@ -22,13 +44,19 @@
 (defn on-item-dblclick [item panel-name]
   (dispatch [:activate panel-name item]))
 
+(defn on-item-click [item panel-name event]
+  (if (.-ctrlKey event)
+    (dispatch [:add-selection panel-name item])
+    (dispatch [:select-item panel-name item])))
+
 (defn on-up-click [panel-name]
   (dispatch [:navigate-up panel-name]))
 
-(defn directory-item [panel-name item]
+(defn directory-item [panel-name item selection]
   [:div { :key (:name item)
-          :class "directory-item flex px1"
-          :on-double-click (partial on-item-dblclick item panel-name) }
+          :class (str "directory-item flex px1 " (if (selection item) "selected"))
+          :on-double-click (partial on-item-dblclick item panel-name)
+          :on-click (partial on-item-click item panel-name) }
     [:div { :class (str "directory-item-type " (item-type-class (:type item))) }]
     [:div { :class "directory-item-name"} (:name item)]
     [:div { :class "directory-item-meta flex"}
@@ -37,16 +65,16 @@
     ]
   ])
 
-(defn directory-list [panel-name items]
+(defn directory-list [panel-name items selection]
   [:div { :class "directory-items"}
     [:div { :class "directory-list flex" }
-      (for [item @items] (directory-item panel-name item))]
+      (for [item items] (directory-item panel-name item selection))]
   ])
 
 (defn directory-path [panel-name]
   (let [panel-path (subscribe [:current-path panel-name])]
     (fn []
-      [:div.directory-path { :class "directory-path flex" }
+      [:div { :class "directory-path flex" }
         [:div {
           :class (str icon-class "mdi-chevron-up p1 inline-block")
           :on-click (partial on-up-click panel-name)}]
@@ -63,18 +91,22 @@
     ]
   ])
 
+(defn directory-list-footer [panel-name items selection]
+  [:div { :class "directory-list-footer flex px3" } (footer-message items selection)])
+
 (defn panel [panel-name]
-  (let [items (subscribe [:panel-items panel-name])]
-    (fn []
-      [:div#left-panel { :class "panel flex p1 border-box" :id panel-name }
-        [:div.panel-container
-          [directory-list-header panel-name]
-          [directory-list panel-name items]
-        ]
-      ])))
+  (let [items (subscribe [:panel-items panel-name])
+        selected-items (subscribe [:selected-items panel-name])]
+    [:div { :class "panel flex p1 border-box" :id panel-name }
+      [:div { :class "panel-container" }
+        [directory-list-header panel-name]
+        [directory-list panel-name @items @selected-items]
+        [directory-list-footer panel-name @items @selected-items]
+      ]
+    ]))
 
 (defn panels []
   [:div#panels
-    [:div#panels-container {:class "flex" }
+    [:div#panels-container { :class "flex" }
       [panel :right-panel]
       [panel :left-panel]]])

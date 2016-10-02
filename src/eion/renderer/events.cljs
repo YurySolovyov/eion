@@ -13,7 +13,14 @@
 (reg-event-db :update-panel (fn [db [_ panel value]]
   (-> db
     (assoc-in [panel :updating] false)
-    (assoc-in [panel :items] value))))
+    (assoc-in [panel :items] value)
+    (assoc-in [panel :selection] #{}))))
+
+(reg-event-db :select-item (fn [db [_ panel item]]
+  (assoc-in db [panel :selection] #{item})))
+
+(reg-event-db :add-selection (fn [db [_ panel item]]
+  (assoc-in db [panel :selection] (conj (get-in db [panel :selection]) item))))
 
 (reg-event-fx :navigate (fn [{:keys [db]} [_ panel new-path]]
   {

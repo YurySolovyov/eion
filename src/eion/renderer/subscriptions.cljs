@@ -5,5 +5,8 @@
 (reg-sub :panel-items (fn [db [_ panel]]
   (get-in db [panel :items])))
 
+(reg-sub :selected-items (fn [db [_ panel]]
+  (get-in db [panel :selection])))
+
 (reg-sub :current-path (fn [db [_ panel]]
   (get-in db [panel :current-path])))

@@ -2,6 +2,11 @@
   (:require [garden.def :refer [defrule defstyles]]
             [garden.stylesheet :refer [rule at-font-face]]))
 
+(def high-row {
+  :line-height "3.5rem"
+  :flex-direction "row"
+  :font-size "0.875em"
+})
 
 (defstyles base
   (at-font-face {
@@ -56,11 +61,7 @@
     :box-shadow "#ccc 0 1px 1px"
   }]
 
-  [:.directory-header {
-    :line-height "3.5rem"
-    :flex-direction "row"
-    :font-size "0.875em"
-  }
+  [:.directory-header high-row
     [:.directory-header-name {
       :flex "2"
     }]
@@ -71,11 +72,20 @@
     }]
   ]
 
+  [:.directory-list-footer (merge high-row {
+    :border-top "1px #E0E0E0 solid"
+  })
+    [:.directory-summary {
+      :flex "1"
+      :justify-content "space-between"
+    }]
+  ]
+
   [:.directory-list {
     :overflow-y "scroll"
     :overflow-x "hidden"
-    :max-height "calc(100vh - 110px)"
-    :min-height "calc(100vh - 110px)"
+    :max-height "calc(100vh - 166px)"
+    :min-height "calc(100vh - 166px)"
     :flex-direction "column"
   }]
 
@@ -88,6 +98,17 @@
     :border-bottom "1px #E0E0E0 solid"
     :transition "0.2s"
   }
+    [:&:last-child {
+      :border-color "transparent"
+    }]
+
+    [:&:first-child {
+      :border-color "#E0E0E0"
+    }]
+
+    [:&.selected {
+      :background-color "#E0E0E0"
+    }]
 
     [:.directory-item-type {
       :width "24px"
