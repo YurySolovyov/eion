@@ -21,6 +21,12 @@
 (defn send-ready []
   (async/put! ipc { :name "ready" }))
 
+(defn init-panel [panel-name]
+  (async/go
+    (let [storage-key (str panel-name "-path")
+          panel-path (node/path-resolve (async/<! (storage/get-item storage-key ".")))]
+      (dispatch [:navigate panel-name panel-path]))))
+
 (enable-console-print!)
 
 (async/go
@@ -33,8 +39,8 @@
 (dispatch-sync [:update-panel :left-panel []])
 (dispatch-sync [:update-panel :right-panel []])
 
-(dispatch [:navigate :left-panel (node/path-resolve ".")])
-(dispatch [:navigate :right-panel (node/path-resolve "../")])
+(init-panel :left-panel)
+(init-panel :right-panel)
 
 (r/render-component
   [components/panels]
