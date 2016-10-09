@@ -11,10 +11,14 @@
   (async/put! file-activations file-path)))
 
 (reg-event-db :update-panel (fn [db [_ panel value]]
+  ; TODO re-write to use pairs for assoc-in
   (-> db
     (assoc-in [panel :updating] false)
     (assoc-in [panel :items] value)
     (assoc-in [panel :selection] #{}))))
+
+(reg-event-db :update-locations (fn [db [_ value]]
+  (assoc db :locations value)))
 
 (reg-event-db :select-item (fn [db [_ panel item]]
   (assoc-in db [panel :selection] #{item})))
@@ -25,8 +29,8 @@
 (reg-event-fx :navigate (fn [{:keys [db]} [_ panel new-path]]
   {
     :db (-> db
-        (assoc-in [panel :updating] true)
-        (assoc-in [panel :current-path] new-path))
+          (assoc-in [panel :updating] true)
+          (assoc-in [panel :current-path] new-path))
     :fetch-panel-items [panel new-path]
   }))
 

@@ -16,7 +16,9 @@
     (str selected-counts selected-size)))
 
 (defn selected-file-size [items]
-  (reduce (fn [total item] (+ total (if (= (:type item) :file) (:size item) 0))) 0 items))
+  (reduce (fn [total item]
+            (+ total (if (= (:type item) :file) (:size item) 0)))
+          0 items))
 
 (defn footer-message [items selection]
   (let [total (count items)
@@ -52,6 +54,13 @@
 (defn on-up-click [panel-name]
   (dispatch [:navigate-up panel-name]))
 
+(defn location [{name :name location-path :path}]
+  [:div { :class "location" :key name } name])
+
+(defn locations [items]
+  [:div { :class "locations flex px4" }
+    (for [item items] (location item))])
+
 (defn directory-item [panel-name item selection]
   [:div { :key (:name item)
           :class (str "directory-item flex px1 " (if (selection item) "selected"))
@@ -82,14 +91,16 @@
       ])))
 
 (defn directory-list-header [panel-name]
-  [:div { :class "directory-list-header flex" }
-    [directory-path panel-name]
-    [:div { :class "directory-header flex px2" }
-      [:div { :class "directory-header-name mx2 flex" } "Name"]
-      [:div { :class "directory-header-ext flex" } "Type"]
-      [:div { :class "directory-header-size flex" } "Size"]
-    ]
-  ])
+  (let [current-locations (subscribe [:locations])]
+    [:div { :class "directory-list-header flex" }
+      [locations @current-locations]
+      [directory-path panel-name]
+      [:div { :class "directory-header flex px2" }
+        [:div { :class "directory-header-name mx2 flex" } "Name"]
+        [:div { :class "directory-header-ext flex" } "Type"]
+        [:div { :class "directory-header-size flex" } "Size"]
+      ]
+    ]))
 
 (defn directory-list-footer [panel-name items selection]
   [:div { :class "directory-list-footer flex px3" } (footer-message items selection)])

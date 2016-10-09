@@ -2,23 +2,29 @@
  :source-paths   #{"src"}
  :resource-paths #{"resources"}
  :dependencies '[[org.clojure/clojurescript     "1.9.229"]
-                 [org.clojure/tools.nrepl       "0.2.12" :scope "test"]
-                 [com.cemerick/piggieback       "0.2.1" :scope "test"]
-                 [weasel                        "0.7.0" :scope "test"]
                  [org.clojure/core.async        "0.2.391"]
                  [reagent                       "0.6.0"]
                  [re-frame                      "0.8.0"]
                  [org.martinklepsch/boot-garden "1.3.2-0"]
                  [cljsjs/localforage            "1.3.1-0"]
-                 [adzerk/boot-cljs              "1.7.228-1" :scope "test"]
-                 [adzerk/boot-cljs-repl         "0.3.3" :scope "test"]
-                 [adzerk/boot-reload            "0.4.12"  :scope "test"]])
+                 [org.clojure/tools.nrepl       "0.2.12"     :scope "test"]
+                 [com.cemerick/piggieback       "0.2.1"      :scope "test"]
+                 [weasel                        "0.7.0"      :scope "test"]
+                 [adzerk/boot-cljs              "1.7.228-1"  :scope "test"]
+                 [adzerk/boot-cljs-repl         "0.3.3"      :scope "test"]
+                 [adzerk/boot-reload            "0.4.12"     :scope "test"]])
 
 (require
- '[adzerk.boot-cljs              :refer [cljs]]
- '[adzerk.boot-cljs-repl         :refer [cljs-repl start-repl]]
- '[adzerk.boot-reload            :refer [reload]]
- '[org.martinklepsch.boot-garden :refer [garden]])
+  '[adzerk.boot-cljs              :refer [cljs]]
+  '[adzerk.boot-cljs-repl         :refer [cljs-repl start-repl]]
+  '[adzerk.boot-reload            :refer [reload]]
+  '[org.martinklepsch.boot-garden :refer [garden]]
+  '[boot.util                     :refer [dosh]]
+  '[boot.pod                      :refer [copy-resource]])
+
+(deftask npm-install []
+  (copy-resource "package.json" "target/package.json")
+  (dosh "npm" "install" "target/" "--prefix" "target/"))
 
 (deftask prod-build []
   (comp (cljs :ids #{"main"}

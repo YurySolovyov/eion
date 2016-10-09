@@ -2,6 +2,10 @@
   (:require-macros [reagent.ratom :refer [reaction]])
   (:require [re-frame.core :refer [reg-sub]]))
 
+
+(reg-sub :locations (fn [db]
+  (:locations db)))
+
 (reg-sub :panel-items (fn [db [_ panel]]
   (get-in db [panel :items])))
 

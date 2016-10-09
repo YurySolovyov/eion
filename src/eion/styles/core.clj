@@ -39,6 +39,7 @@
     :height "100%"
     :font-family "OpenSans"
     :font-size "16px"
+    :color "#212121"
   }]
 
   [:.panel {
@@ -51,6 +52,19 @@
     :flex "1"
     :box-shadow "#999 0 1px 2px"
   }]
+
+  [:.locations {
+    :border-bottom "1px #E0E0E0 solid"
+    :line-height "3em"
+    :max-width "calc(50vw - 144px)"
+    :overflow "hidden"
+  }
+    [:.location {
+      :padding "0 0.75em"
+      :min-width "100px"
+      :text-align "center"
+    }]
+  ]
 
   [:.directory-path {
     :flex-direction "row"
@@ -84,8 +98,8 @@
   [:.directory-list {
     :overflow-y "scroll"
     :overflow-x "hidden"
-    :max-height "calc(100vh - 166px)"
-    :min-height "calc(100vh - 166px)"
+    :max-height "calc(100vh - 231px)"
+    :min-height "calc(100vh - 231px)"
     :flex-direction "column"
   }]
 

@@ -5,6 +5,7 @@
             [eion.bindings.node :as node]
             [eion.bindings.storage :as storage]
             [eion.renderer.channels :refer [ipc]]
+            [eion.directories.locations :refer [get-locations]]
             [goog.events :as events]
             [cljs.core.async :as async]
             [reagent.core :as r]
@@ -14,6 +15,8 @@
 
 (defn init []
   nil)
+
+(enable-console-print!)
 
 (defn toggle-dev-tools []
   (async/put! ipc { :name "toggle-dev-tools" }))
@@ -27,7 +30,10 @@
           panel-path (node/path-resolve (async/<! (storage/get-item storage-key ".")))]
       (dispatch [:navigate panel-name panel-path]))))
 
-(enable-console-print!)
+(defn init-locations []
+  (async/go
+    (let [locations (async/<! (get-locations))]
+      (dispatch [:update-locations locations]))))
 
 (async/go
   (let [ev (async/<! key-events)]
@@ -39,8 +45,12 @@
 (dispatch-sync [:update-panel :left-panel []])
 (dispatch-sync [:update-panel :right-panel []])
 
+(dispatch-sync [:update-locations []])
+
 (init-panel :left-panel)
 (init-panel :right-panel)
+
+(init-locations)
 
 (r/render-component
   [components/panels]
