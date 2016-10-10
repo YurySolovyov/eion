@@ -1,6 +1,7 @@
 (ns eion.renderer.components
   (:require [re-frame.core :refer [subscribe dispatch]]
-            [eion.renderer.subscriptions]))
+            [eion.renderer.subscriptions]
+            [reagent.core :as r]))
 
 (def icon-class "mdi mdi-18px ")
 
@@ -51,15 +52,31 @@
     (dispatch [:add-selection panel-name item])
     (dispatch [:select-item panel-name item])))
 
+(defn on-location-click [panel-name item]
+  (dispatch [:navigate panel-name (:path item)]))
+
 (defn on-up-click [panel-name]
   (dispatch [:navigate-up panel-name]))
 
-(defn location [{name :name location-path :path}]
-  [:div { :class "location" :key name } name])
+(defn on-locations-wheel [scroll-state e]
+  (if (> (.-deltaY e) 0)
+        (reset! scroll-state (min (inc @scroll-state) 0))
+        (reset! scroll-state (max (dec @scroll-state) -4))))
 
-(defn locations [items]
-  [:div { :class "locations flex px4" }
-    (for [item items] (location item))])
+(defn location [panel-name { name :name location-path :path is-current :is-current :as item }]
+  [:div { :class (str "location border-box" (if is-current " current"))
+          :key name
+          :on-click (partial on-location-click panel-name item)
+        } name])
+
+(defn locations []
+  (let [scroll-state (r/atom 0)]
+    (fn [panel-name items]
+      [:div { :class "locations flex"
+              :on-wheel (partial on-locations-wheel scroll-state) }
+        [:div { :class "locations-list flex"
+                :style { :margin-left (str @scroll-state "em") } }
+              (for [item items] (location panel-name item))]])))
 
 (defn directory-item [panel-name item selection]
   [:div { :key (:name item)
@@ -80,21 +97,20 @@
       (for [item items] (directory-item panel-name item selection))]
   ])
 
-(defn directory-path [panel-name]
-  (let [panel-path (subscribe [:current-path panel-name])]
-    (fn []
-      [:div { :class "directory-path flex" }
-        [:div {
-          :class (str icon-class "mdi-chevron-up p1 inline-block")
-          :on-click (partial on-up-click panel-name)}]
-        [:div { :class "panel-path p1 inline-block" } @panel-path]
-      ])))
+(defn directory-path [panel-name panel-path]
+  [:div { :class "directory-path flex" }
+    [:div {
+      :class (str icon-class "mdi-chevron-up p1 inline-block")
+      :on-click (partial on-up-click panel-name)}]
+    [:div { :class "panel-path p1 inline-block" } panel-path]
+  ])
 
 (defn directory-list-header [panel-name]
-  (let [current-locations (subscribe [:locations])]
+  (let [current-locations (subscribe [:locations panel-name])
+        panel-path (subscribe [:current-path panel-name])]
     [:div { :class "directory-list-header flex" }
-      [locations @current-locations]
-      [directory-path panel-name]
+      [locations panel-name @current-locations]
+      [directory-path panel-name @panel-path]
       [:div { :class "directory-header flex px2" }
         [:div { :class "directory-header-name mx2 flex" } "Name"]
         [:div { :class "directory-header-ext flex" } "Type"]

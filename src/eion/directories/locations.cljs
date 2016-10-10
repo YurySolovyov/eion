@@ -9,19 +9,19 @@
   (npm/path-to-regexp (str path ":nested*")))
 
 (defn make-location [path name]
-  {:path path :name name :route (make-route path) })
+  { :path path :name name :route (make-route path) })
 
 (defn locations-posix []
   (let [out-chan (async/chan 1)]
     (async/put! out-chan [
       (make-location "/" "Root")
+      (make-location (electron/get-path "home") "Home")
       (make-location (electron/get-path "desktop") "Desktop")
       (make-location (electron/get-path "documents") "Documents")
       (make-location (electron/get-path "downloads") "Downloads")
       (make-location (electron/get-path "music") "Music")
       (make-location (electron/get-path "pictures") "Pictures")
       (make-location (electron/get-path "videos") "Videos")
-      (make-location (electron/get-path "home") "Home")
     ])
     out-chan))
 
@@ -35,3 +35,10 @@
   (case node/platform
     "win32" (locations-windows)
     (locations-posix)))
+
+(defn location-matches [path item]
+  (not (nil? (re-matches (:route item) (str path)))))
+
+(defn is-current-location [locations location current-path]
+  (let [current (last (filter (partial location-matches current-path) locations))]
+    (= current location)))

@@ -1,5 +1,6 @@
 (ns eion.styles.core
-  (:require [garden.def :refer [defrule defstyles]]
+  (:require [garden.def :refer :all]
+            [garden.selectors :as s]
             [garden.stylesheet :refer [rule at-font-face]]))
 
 (def high-row {
@@ -16,6 +17,7 @@
 
   ["::-webkit-scrollbar" {
     :width "8px"
+    :height "8px"
   }]
 
   ["::-webkit-scrollbar-thumb" {
@@ -51,19 +53,30 @@
     :flex-direction "column"
     :flex "1"
     :box-shadow "#999 0 1px 2px"
+    :max-width "calc(50vw - 20px)"
   }]
 
   [:.locations {
     :border-bottom "1px #E0E0E0 solid"
     :line-height "3em"
-    :max-width "calc(50vw - 144px)"
     :overflow "hidden"
   }
-    [:.location {
-      :padding "0 0.75em"
-      :min-width "100px"
-      :text-align "center"
+    [:.locations-list {
+      :transition "margin 0.2s"
     }]
+
+    [:.location {
+      :cursor "pointer"
+      :padding "0 0.75em"
+      :min-width "8em"
+      :text-align "center"
+      :border-bottom "2px transparent solid"
+    }
+      [:&.current {
+        :color "#2196F3"
+        :border-color "#2196F3"
+      }]
+    ]
   ]
 
   [:.directory-path {
