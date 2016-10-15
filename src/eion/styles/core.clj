@@ -9,6 +9,16 @@
   :font-size "0.875em"
 })
 
+(def scroll-background "#ccc")
+(def body-background "#FFF")
+(def theme-blue "#4dadf7")
+(def theme-white "#E0E0E0")
+(def theme-text-color "#34495e")
+(def theme-icon-color "#34495e")
+
+(def shadow-strong "#999 0 1px 2px")
+(def shadow-light "#ccc 0 1px 1px")
+
 (defstyles base
   (at-font-face {
     :font-family "OpenSans"
@@ -21,14 +31,14 @@
   }]
 
   ["::-webkit-scrollbar-thumb" {
-    :background-color "#ccc"
+    :background-color scroll-background
     :background-clip "content-box"
     :border "2px transparent solid"
     :border-radius "4px"
   }
     [:&:hover :&:active {
-      :background-color "#2196F3"
-      :border-color "#2196F3"
+      :background-color theme-blue
+      :border-color theme-blue
       :border-radius "0"
     }]
   ]
@@ -41,7 +51,8 @@
     :height "100%"
     :font-family "OpenSans"
     :font-size "16px"
-    :color "#212121"
+    :color theme-text-color
+    :background-color body-background
   }]
 
   [:.panel {
@@ -52,12 +63,12 @@
   [:.panel-container {
     :flex-direction "column"
     :flex "1"
-    :box-shadow "#999 0 1px 2px"
+    :box-shadow shadow-strong
     :max-width "calc(50vw - 20px)"
   }]
 
   [:.locations {
-    :border-bottom "1px #E0E0E0 solid"
+    :border-bottom (str "1px " theme-white " solid")
     :line-height "3em"
     :overflow "hidden"
   }
@@ -73,8 +84,8 @@
       :border-bottom "2px transparent solid"
     }
       [:&.current {
-        :color "#2196F3"
-        :border-color "#2196F3"
+        :color theme-blue
+        :border-color theme-blue
       }]
     ]
   ]
@@ -85,7 +96,7 @@
 
   [:.directory-list-header {
     :flex-direction "column"
-    :box-shadow "#ccc 0 1px 1px"
+    :box-shadow shadow-light
   }]
 
   [:.directory-header high-row
@@ -100,7 +111,7 @@
   ]
 
   [:.directory-list-footer (merge high-row {
-    :border-top "1px #E0E0E0 solid"
+    :border-top (str "1px " theme-white " solid")
   })
     [:.directory-summary {
       :flex "1"
@@ -122,7 +133,7 @@
     :cursor "default"
     :-webkit-user-select "none"
     :font-size "0.875em"
-    :border-bottom "1px #E0E0E0 solid"
+    :border-bottom (str "1px " theme-white " solid")
     :transition "0.2s"
   }
     [:&:last-child {
@@ -130,16 +141,17 @@
     }]
 
     [:&:first-child {
-      :border-color "#E0E0E0"
+      :border-color theme-white
     }]
 
     [:&.selected {
-      :background-color "#E0E0E0"
+      :background-color theme-white
     }]
 
     [:.directory-item-type {
       :width "24px"
-      :color "#234154"
+      :color theme-icon-color
+      :line-height "4em"
     }]
 
     [:.directory-item-name {

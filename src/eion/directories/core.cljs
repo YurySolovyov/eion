@@ -4,6 +4,10 @@
             [eion.bindings.node :as node]))
 
 (def concurrency 64)
+(def locked-file-codes #{"EBUSY" "EPERM" "EACCES"})
+
+(defn is-locked [stat]
+  (and (instance? js/Error stat) (contains? locked-file-codes (.-code stat))))
 
 (defn handle-error [e]
   (.warn js/console e))
@@ -32,15 +36,24 @@
 
 (defn item-type [stat]
   (cond
+    (is-locked stat) :locked
     (.isFile stat) :file
     (.isDirectory stat) :dir
     (.isSymbolicLink stat) :link))
 
+(defn enhance-file-stat [file stat]
+  (let [ext (node/path-ext (:name file))
+        cloned-stat (assign-clone stat)]
+    (merge file {:type :file :ext ext} cloned-stat)))
+
+(defn enhance-dir-stat [dir stat]
+  (merge dir {:type :dir :ext ""} (assign-clone stat)))
+
 (defn enhance-stat [file stat]
-  (let [type (item-type stat)
-        cloned-stat (assign-clone stat)
-        ext (if (= type :file) (node/path-ext (:name file)) "")]
-    (merge file {:type type :ext ext} cloned-stat)))
+  (condp = (item-type stat)
+    :locked (merge file {:type :locked :ext ""})
+    :file   (enhance-file-stat file stat)
+    :dir    (enhance-dir-stat file stat)))
 
 (defn read-directory [dir-path]
   (async/go

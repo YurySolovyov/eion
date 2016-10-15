@@ -3,7 +3,7 @@
             [eion.renderer.subscriptions]
             [reagent.core :as r]))
 
-(def icon-class "mdi mdi-18px ")
+(def icon-class "mdi mdi-24px ")
 
 (defn format-size [size]
   (clojure.string/replace (str size) #"(\d)(?=(\d{3})+(?!\d))" "$1 "))
@@ -36,13 +36,15 @@
   (case type
     :dir (str icon-class "mdi-folder")
     :file (str icon-class "mdi-file")
-    :link (str icon-class "mdi-file-outline")))
+    :link (str icon-class "mdi-file-outline")
+    :locked (str icon-class "mdi-lock-outline")))
 
 (defn item-size-label [item]
   (case (:type item)
     :dir "<dir>"
     :file (format-size (:size item))
-    :link "<link>"))
+    :link "<link>"
+    ""))
 
 (defn on-item-dblclick [item panel-name]
   (dispatch [:activate panel-name item]))
@@ -84,7 +86,7 @@
           :on-double-click (partial on-item-dblclick item panel-name)
           :on-click (partial on-item-click item panel-name) }
     [:div { :class (str "directory-item-type " (item-type-class (:type item))) }]
-    [:div { :class "directory-item-name"} (:name item)]
+    [:div { :class "directory-item-name px1"} (:name item)]
     [:div { :class "directory-item-meta flex"}
       [:div { :class "directory-item-ext"} (:ext item)]
       [:div { :class "directory-item-size"} (item-size-label item)]
