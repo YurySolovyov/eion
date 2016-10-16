@@ -81,12 +81,20 @@
       :padding "0 0.75em"
       :min-width "8em"
       :text-align "center"
-      :border-bottom "2px transparent solid"
     }
+      [:.location-highlight {
+        :background-color "transparent"
+        :height "2px"
+        :transition "0.2s"
+      }]
+
       [:&.current {
         :color theme-blue
-        :border-color theme-blue
-      }]
+      }
+        [:.location-highlight {
+          :background-color theme-blue
+        }]
+      ]
     ]
   ]
 

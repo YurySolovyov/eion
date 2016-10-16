@@ -66,10 +66,12 @@
         (reset! scroll-state (max (dec @scroll-state) -4))))
 
 (defn location [panel-name { name :name location-path :path is-current :is-current :as item }]
-  [:div { :class (str "location border-box" (if is-current " current"))
+  [:div { :class (str "location flex-column border-box" (if is-current " current"))
           :key name
-          :on-click (partial on-location-click panel-name item)
-        } name])
+          :on-click (partial on-location-click panel-name item) }
+    [:span name]
+    [:span { :class "location-highlight block" }]
+  ])
 
 (defn locations []
   (let [scroll-state (r/atom 0)]
