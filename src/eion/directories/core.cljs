@@ -53,7 +53,7 @@
   (condp = (item-type stat)
     :locked (merge file {:type :locked :ext ""})
     :file   (enhance-file-stat file stat)
-    :dir    (enhance-dir-stat file stat)))
+    (enhance-dir-stat file stat)))
 
 (defn read-directory [dir-path]
   (async/go

@@ -39,6 +39,6 @@
 (defn location-matches [path item]
   (not (nil? (re-matches (:route item) (str path)))))
 
-(defn is-current-location [locations location current-path]
-  (let [current (last (filter (partial location-matches current-path) locations))]
-    (= current location)))
+(defn find-current [locations current-path]
+  (let [matches (partial location-matches current-path)]
+    (first (filter matches (reverse locations)))))

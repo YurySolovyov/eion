@@ -3,12 +3,12 @@
   (:require [re-frame.core :refer [reg-sub]]
             [eion.directories.locations :as locations]))
 
-
 (reg-sub :locations (fn [db [_ panel]]
   (let [locations (:locations db)
-        current-path (get-in db [panel :current-path])]
+        current-path (get-in db [panel :current-path])
+        current-location (locations/find-current locations current-path)]
     (mapv (fn [location]
-      (assoc location :is-current (locations/is-current-location locations location current-path)))
+      (assoc location :is-current (= location current-location)))
     locations))))
 
 (reg-sub :panel-items (fn [db [_ panel]]
