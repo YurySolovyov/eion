@@ -20,6 +20,9 @@
 (reg-event-db :update-locations (fn [db [_ value]]
   (assoc db :locations value)))
 
+(reg-event-db :update-progress (fn [db [_ panel value]]
+  (assoc-in db [panel :progress] value)))
+
 (reg-event-db :select-item (fn [db [_ panel item]]
   (assoc-in db [panel :selection] #{item})))
 

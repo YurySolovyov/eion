@@ -118,6 +118,18 @@
     }]
   ]
 
+  [:.directory-progress {
+    :width "0%"
+    :height "2px"
+    :background-color theme-blue
+    :margin-top "-2px"
+    :transition "opacity 0.4s"
+  }
+    [:&.full {
+      :opacity 0
+    }]
+  ]
+
   [:.directory-list-footer (merge high-row {
     :border-top (str "1px " theme-white " solid")
   })

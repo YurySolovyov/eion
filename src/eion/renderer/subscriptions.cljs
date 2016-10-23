@@ -11,6 +11,9 @@
       (assoc location :is-current (= location current-location)))
     locations))))
 
+(reg-sub :progress (fn [db [_ panel]]
+  (get-in db [panel :progress])))
+
 (reg-sub :panel-items (fn [db [_ panel]]
   (get-in db [panel :items])))
 

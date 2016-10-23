@@ -82,6 +82,13 @@
                 :style { :margin-left (str @scroll-state "em") } }
               (for [item items] (location panel-name item))]])))
 
+(defn directory-progress [panel-name]
+  (let [progress (subscribe [:progress panel-name])
+        percent (* 100 @progress)
+        is-full (= percent 100)]
+    [:div { :class (str "directory-progress " (if is-full "full"))
+            :style { :width (str percent "%") } }]))
+
 (defn directory-item [panel-name item selection]
   [:div { :key (:name item)
           :class (str "directory-item flex px1 " (if (selection item) "selected"))
@@ -115,6 +122,7 @@
     [:div { :class "directory-list-header flex" }
       [locations panel-name @current-locations]
       [directory-path panel-name @panel-path]
+      [directory-progress panel-name]
       [:div { :class "directory-header flex px2" }
         [:div { :class "directory-header-name mx2 flex" } "Name"]
         [:div { :class "directory-header-ext flex" } "Type"]
