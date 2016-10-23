@@ -67,7 +67,7 @@
 
 (defn location [panel-name { name :name location-path :path is-current :is-current :as item }]
   [:div { :class (str "location flex-column border-box" (if is-current " current"))
-          :key name
+          :key location-path
           :on-click (partial on-location-click panel-name item) }
     [:span name]
     [:span { :class "location-highlight block" }]
