@@ -3,6 +3,9 @@
 
 (def path (js/require "path"))
 (def fs (js/require "fs"))
+(def os (js/require "os"))
+
+(def platform (.platform os))
 
 (defn path-resolve [dir-path]
   (.resolve path dir-path))

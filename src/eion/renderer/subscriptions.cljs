@@ -1,6 +1,18 @@
 (ns eion.renderer.subscriptions
   (:require-macros [reagent.ratom :refer [reaction]])
-  (:require [re-frame.core :refer [reg-sub]]))
+  (:require [re-frame.core :refer [reg-sub]]
+            [eion.directories.locations :as locations]))
+
+(reg-sub :locations (fn [db [_ panel]]
+  (let [locations (:locations db)
+        current-path (get-in db [panel :current-path])
+        current-location (locations/find-current locations current-path)]
+    (mapv (fn [location]
+      (assoc location :is-current (= location current-location)))
+    locations))))
+
+(reg-sub :progress (fn [db [_ panel]]
+  (get-in db [panel :progress])))
 
 (reg-sub :panel-items (fn [db [_ panel]]
   (get-in db [panel :items])))
