@@ -4,7 +4,7 @@ Eion is a modern file manager built with web technologies.
 
 Screenshot:
 
-![Eion Screenshot](screenshot.png "Eion")
+![Eion Screenshot](https://raw.githubusercontent.com/YurySolovyov/eion/f58b15613f2097ba68b2cd00810e2465e4f47d5b/screenshot.png "Eion")
 
 ## Trying it out:
 
