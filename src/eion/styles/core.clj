@@ -100,7 +100,24 @@
 
   [:.directory-path {
     :flex-direction "row"
-  }]
+  }
+    [:.panel-path {
+      :font-family "OpenSans"
+      :font-size "1em"
+      :flex "1"
+      :border "none"
+      :background-color "transparent"
+      :text-overflow "ellipsis"
+      :white-space "nowrap"
+      :overflow "hidden"
+      :transition "0.2s"
+    }
+      [:&:focus {
+        :outline "none"
+        :color theme-blue
+      }]
+    ]
+  ]
 
   [:.directory-list-header {
     :flex-direction "column"

@@ -8,6 +8,7 @@
 
 
 (def navigations (async/chan 2))
+(def maybe-navigations (async/chan 2))
 (def file-activations (async/chan))
 (def ipc (async/chan))
 
@@ -24,6 +25,10 @@
     (dispatch [:update-panel panel (async/<! response-channel)])
     (storage/set-item { :key (str panel "-path") :value path })
     (recur (async/<! navigations) (async/chan) (async/chan)))
+
+(async/go-loop [{ path :path panel :panel } (async/<! maybe-navigations)]
+  (println path panel)
+  (recur (async/<! maybe-navigations)))
 
 (async/go-loop [activation (async/<! file-activations)]
     (electron/open-item activation)
