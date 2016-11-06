@@ -12,6 +12,7 @@
 (def scroll-background "#ccc")
 (def body-background "#FFF")
 (def theme-blue "#4dadf7")
+(def theme-red "#fa5252")
 (def theme-white "#E0E0E0")
 (def theme-text-color "#34495e")
 (def theme-icon-color "#34495e")
@@ -115,6 +116,10 @@
       [:&:focus {
         :outline "none"
         :color theme-blue
+      }]
+
+      [:&.error {
+        :color theme-red
       }]
     ]
   ]

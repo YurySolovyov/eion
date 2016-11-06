@@ -11,6 +11,9 @@
       (assoc location :is-current (= location current-location)))
     locations))))
 
+(reg-sub :navigation-error (fn [db [_ panel]]
+  (get-in db [panel :navigation-error])))
+
 (reg-sub :progress (fn [db [_ panel]]
   (get-in db [panel :progress])))
 
@@ -22,3 +25,6 @@
 
 (reg-sub :current-path (fn [db [_ panel]]
   (get-in db [panel :current-path])))
+
+(reg-sub :custom-path (fn [db [_ panel]]
+  (get-in db [panel :custom-path])))

@@ -3,9 +3,9 @@
   (:require [eion.directories.core :as dirs]
             [eion.bindings.electron :as electron]
             [eion.bindings.storage :as storage]
+            [eion.bindings.node :as node]
             [cljs.core.async :as async]
             [re-frame.core :refer [dispatch]]))
-
 
 (def navigations (async/chan 2))
 (def maybe-navigations (async/chan 2))
@@ -27,7 +27,12 @@
     (recur (async/<! navigations) (async/chan) (async/chan)))
 
 (async/go-loop [{ path :path panel :panel } (async/<! maybe-navigations)]
-  (println path panel)
+  (if (async/<! (node/fs-access path))
+    (dispatch [:navigate panel path])
+    (do
+      (dispatch [:navigation-error-state panel true])
+      (async/<! (async/timeout 200))
+      (dispatch [:navigation-error-state panel false])))
   (recur (async/<! maybe-navigations)))
 
 (async/go-loop [activation (async/<! file-activations)]
