@@ -33,3 +33,12 @@
         (async/put! out-chan (if err err stat))
         (async/close! out-chan)))
     out-chan))
+
+(defn fs-access
+  ([item-path] (fs-access item-path (async/chan 1)))
+  ([item-path out-chan]
+    (.access fs item-path
+      (fn [err]
+        (async/put! out-chan (if err false true))
+        (async/close! out-chan)))
+    out-chan))

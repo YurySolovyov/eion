@@ -46,6 +46,14 @@
     :link "<link>"
     ""))
 
+(defn on-directory-path-input [panel-name e]
+  (let [value (.-value (.-target e))]
+    (dispatch [:custom-path-input panel-name value])))
+
+(defn on-directory-path-submit [panel-name e]
+  (if (= (.-key e) "Enter")
+    (dispatch [:try-navigate panel-name])))
+
 (defn on-item-dblclick [item panel-name]
   (dispatch [:activate panel-name item]))
 
@@ -109,12 +117,20 @@
   ])
 
 (defn directory-path [panel-name panel-path]
-  [:div { :class "directory-path flex" }
-    [:div {
-      :class (str icon-class "mdi-chevron-up p1 inline-block")
-      :on-click (partial on-up-click panel-name)}]
-    [:div { :class "panel-path p1 inline-block" } panel-path]
-  ])
+  (let [navigation-error (subscribe [:navigation-error panel-name])
+        custom-path (subscribe [:custom-path panel-name])
+        path-value (if (= @custom-path panel-path) panel-path @custom-path)]
+    [:div { :class "directory-path flex" }
+      [:div {
+        :class (str icon-class "mdi-chevron-up p1 inline-block")
+        :on-click (partial on-up-click panel-name)}]
+      [:input { :type "text"
+                :class (str "panel-path p1 flex" (if @navigation-error " error"))
+                :placeholder panel-path
+                :value (str path-value)
+                :on-input (partial on-directory-path-input panel-name)
+                :on-key-press (partial on-directory-path-submit panel-name) }]
+    ]))
 
 (defn directory-list-header [panel-name]
   (let [current-locations (subscribe [:locations panel-name])

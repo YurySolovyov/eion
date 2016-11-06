@@ -12,6 +12,7 @@
 (def scroll-background "#ccc")
 (def body-background "#FFF")
 (def theme-blue "#4dadf7")
+(def theme-red "#fa5252")
 (def theme-white "#E0E0E0")
 (def theme-text-color "#34495e")
 (def theme-icon-color "#34495e")
@@ -100,7 +101,28 @@
 
   [:.directory-path {
     :flex-direction "row"
-  }]
+  }
+    [:.panel-path {
+      :font-family "OpenSans"
+      :font-size "1em"
+      :flex "1"
+      :border "none"
+      :background-color "transparent"
+      :text-overflow "ellipsis"
+      :white-space "nowrap"
+      :overflow "hidden"
+      :transition "0.2s"
+    }
+      [:&:focus {
+        :outline "none"
+        :color theme-blue
+      }]
+
+      [:&.error {
+        :color theme-red
+      }]
+    ]
+  ]
 
   [:.directory-list-header {
     :flex-direction "column"

@@ -1,7 +1,7 @@
 (ns eion.renderer.events
   (:require [re-frame.core :refer [reg-event-db reg-event-fx reg-fx]]
             [cljs.core.async :as async]
-            [eion.renderer.channels :refer [navigations file-activations]]
+            [eion.renderer.channels :refer [navigations maybe-navigations file-activations]]
             [eion.directories.core :refer [path-up]]))
 
 (reg-fx :fetch-panel-items (fn [[panel next-path]]
@@ -9,6 +9,9 @@
 
 (reg-fx :open-file (fn [[file-path]]
   (async/put! file-activations file-path)))
+
+(reg-fx :try-navigate (fn [maybe-navigation]
+  (async/put! maybe-navigations maybe-navigation)))
 
 (reg-event-db :update-panel (fn [db [_ panel value]]
   ; TODO re-write to use pairs for assoc-in
@@ -29,11 +32,30 @@
 (reg-event-db :add-selection (fn [db [_ panel item]]
   (assoc-in db [panel :selection] (conj (get-in db [panel :selection]) item))))
 
+(reg-event-db :custom-path-input (fn [db [_ panel value]]
+  (assoc-in db [panel :custom-path] value)))
+
+(reg-event-fx :navigation-error-state (fn [{:keys [db]} [_ panel state]]
+  (let [custom-path-key (if state :current-path :custom-path)
+        new-custom-path (get-in db [panel custom-path-key])]
+    {
+      :db (-> db
+            (assoc-in [panel :navigation-error] state)
+            (assoc-in [panel :custom-path] new-custom-path))
+    })))
+
+(reg-event-fx :try-navigate (fn [{:keys [db]} [_ panel]]
+  (let [new-path (get-in db [panel :custom-path])]
+    {
+      :try-navigate { :panel panel :path new-path }
+    })))
+
 (reg-event-fx :navigate (fn [{:keys [db]} [_ panel new-path]]
   {
     :db (-> db
           (assoc-in [panel :updating] true)
-          (assoc-in [panel :current-path] new-path))
+          (assoc-in [panel :current-path] new-path)
+          (assoc-in [panel :custom-path] new-path))
     :fetch-panel-items [panel new-path]
   }))
 
