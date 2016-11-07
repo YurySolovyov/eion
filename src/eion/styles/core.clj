@@ -10,10 +10,11 @@
 })
 
 (def scroll-background "#ccc")
-(def body-background "#FFF")
+(def body-background "#fff")
 (def theme-blue "#4dadf7")
 (def theme-red "#fa5252")
-(def theme-white "#E0E0E0")
+(def theme-white "#e0e0e0")
+(def theme-full-white "#fff")
 (def theme-text-color "#34495e")
 (def theme-icon-color "#34495e")
 
@@ -120,6 +121,17 @@
 
       [:&.error {
         :color theme-red
+      }]
+    ]
+
+    [:.up-button {
+      :border-radius "2px"
+      :transition "0.2s"
+      :cursor "pointer"
+    }
+      [:&:hover {
+        :color theme-full-white
+        :background-color theme-blue
       }]
     ]
   ]

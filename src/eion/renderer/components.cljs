@@ -122,7 +122,7 @@
         path-value (if (= @custom-path panel-path) panel-path @custom-path)]
     [:div { :class "directory-path flex" }
       [:div {
-        :class (str icon-class "mdi-chevron-up p1 inline-block")
+        :class (str icon-class "up-button mdi-chevron-up m1 inline-block")
         :on-click (partial on-up-click panel-name)}]
       [:input { :type "text"
                 :class (str "panel-path p1 flex" (if @navigation-error " error"))
