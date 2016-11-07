@@ -35,6 +35,12 @@
 (reg-event-db :custom-path-input (fn [db [_ panel value]]
   (assoc-in db [panel :custom-path] value)))
 
+(reg-event-db :position-context-menu (fn [db [_ position]]
+  (assoc db :context-menu-position position)))
+
+(reg-event-db :context-menu-active (fn [db [_ value]]
+  (assoc db :context-menu-active value)))
+
 (reg-event-fx :navigation-error-state (fn [{:keys [db]} [_ panel state]]
   (let [custom-path-key (if state :current-path :custom-path)
         new-custom-path (get-in db [panel custom-path-key])]

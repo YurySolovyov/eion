@@ -21,6 +21,16 @@
 (def shadow-strong "#999 0 1px 2px")
 (def shadow-light "#ccc 0 1px 1px")
 
+(def list-item {
+  :line-height "3rem"
+  :min-height "3rem"
+  :cursor "default"
+  :-webkit-user-select "none"
+  :font-size "0.875em"
+  :border-bottom (str "1px " theme-white " solid")
+  :transition "0.2s"
+})
+
 (defstyles base
   (at-font-face {
     :font-family "OpenSans"
@@ -181,15 +191,7 @@
     :flex-direction "column"
   }]
 
-  [:.directory-item {
-    :line-height "3rem"
-    :min-height "3rem"
-    :cursor "default"
-    :-webkit-user-select "none"
-    :font-size "0.875em"
-    :border-bottom (str "1px " theme-white " solid")
-    :transition "0.2s"
-  }
+  [:.directory-item list-item
     [:&:last-child {
       :border-color "transparent"
     }]
@@ -222,6 +224,22 @@
       [:.directory-item-ext :.directory-item-size {
         :flex "1"
         :text-align "right"
+      }]
+    ]
+  ]
+
+  [:#item-context-menu {
+    :top 0
+    :min-width "128px"
+    :background-color theme-full-white
+    :box-shadow shadow-light
+    :cursor "pointer"
+  }
+    [:.context-menu-item (merge list-item {
+      :border "none"
+    })
+      [:&:hover {
+        :color theme-blue
       }]
     ]
   ]

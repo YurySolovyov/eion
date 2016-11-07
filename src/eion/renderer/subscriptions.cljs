@@ -17,6 +17,12 @@
 (reg-sub :progress (fn [db [_ panel]]
   (get-in db [panel :progress])))
 
+(reg-sub :context-menu-position (fn [db [_]]
+  (:context-menu-position db)))
+
+(reg-sub :context-menu-active (fn [db [_]]
+  (:context-menu-active db)))
+
 (reg-sub :panel-items (fn [db [_ panel]]
   (get-in db [panel :items])))
 

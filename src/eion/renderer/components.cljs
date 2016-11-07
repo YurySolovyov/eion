@@ -60,7 +60,19 @@
 (defn on-item-click [item panel-name event]
   (if (.-ctrlKey event)
     (dispatch [:add-selection panel-name item])
-    (dispatch [:select-item panel-name item])))
+    (do
+      (dispatch [:select-item panel-name item])
+      (dispatch [:context-menu-active false]))))
+
+(defn on-context-menu [item panel-name event]
+  (on-item-click item panel-name event)
+  (let [position { :top (.-pageY event) :left (.-pageX event) }]
+    (dispatch [:context-menu-active true])
+    (dispatch [:position-context-menu position])))
+
+(defn on-context-item-click [action event]
+  (println action)
+  (dispatch [:context-menu-active false]))
 
 (defn on-location-click [panel-name item]
   (dispatch [:navigate panel-name (:path item)]))
@@ -72,6 +84,23 @@
   (if (> (.-deltaY e) 0)
         (reset! scroll-state (min (inc @scroll-state) 0))
         (reset! scroll-state (max (dec @scroll-state) -4))))
+
+(defn context-menu-item [action label]
+  [:div { :class "context-menu-item px1"
+          :on-click (partial on-context-item-click action) } label])
+
+(defn context-menu []
+  (let [context-menu-position (subscribe [:context-menu-position])
+        context-menu-active (subscribe [:context-menu-active])]
+    [:div#item-context-menu {
+      :class (str "absolute" (if @context-menu-active "" " display-none"))
+      :style @context-menu-position
+    }
+      [context-menu-item :copy "Copy"]
+      [context-menu-item :move "Move"]
+      [context-menu-item :rename "Rename"]
+      [context-menu-item :delete "Delete"]
+    ]))
 
 (defn location [panel-name { name :name location-path :path is-current :is-current :as item }]
   [:div { :class (str "location flex-column border-box" (if is-current " current"))
@@ -101,7 +130,8 @@
   [:div { :key (:name item)
           :class (str "directory-item flex px1 " (if (selection item) "selected"))
           :on-double-click (partial on-item-dblclick item panel-name)
-          :on-click (partial on-item-click item panel-name) }
+          :on-click (partial on-item-click item panel-name)
+          :on-context-menu (partial on-context-menu item panel-name) }
     [:div { :class (str "directory-item-type " (item-type-class (:type item))) }]
     [:div { :class "directory-item-name px1"} (:name item)]
     [:div { :class "directory-item-meta flex"}
@@ -164,4 +194,7 @@
   [:div#panels
     [:div#panels-container { :class "flex" }
       [panel :right-panel]
-      [panel :left-panel]]])
+      [panel :left-panel]
+    ]
+    [context-menu]
+  ])
