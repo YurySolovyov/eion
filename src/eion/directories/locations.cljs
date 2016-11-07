@@ -7,7 +7,7 @@
             [eion.bindings.electron :as electron]))
 
 (defn make-route [path]
-  (npm/path-to-regexp (str path ":nested*")))
+  (npm/path-to-regexp (str path "*")))
 
 (defn make-location [path name]
   { :path path :name name :route (make-route path) })
