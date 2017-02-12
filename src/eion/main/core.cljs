@@ -36,6 +36,7 @@
 
 (defn init-browser []
   (reset! main-window (create-window default-window))
+  (.setMenuBarVisibility @main-window false)
   (load-page @main-window)
   (.on @main-window "closed" deref-main)
   (.on ipc "toggle-dev-tools" toggle-dev-tools)
