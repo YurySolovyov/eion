@@ -25,7 +25,9 @@
   (let [total (count items)
         { files :file directories :dir links :link } (count-by-type items)
         total-items (str total " items. ")
-        items-counts (str (+ files links) " files and " directories " directories. ")
+        file-count (int (+ files links))
+        dirs-count (int directories)
+        items-counts (str file-count " files and " dirs-count " directories.")
         selected-size (selected-file-size selection)]
       [:div { :class "directory-summary flex" }
         [:div { :class "counts"} (str total-items items-counts)]
