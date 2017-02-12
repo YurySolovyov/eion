@@ -2,7 +2,7 @@
  :source-paths   #{"src"}
  :resource-paths #{"resources"}
  :dependencies '[[org.clojure/clojurescript     "1.9.473"]
-                 [org.clojure/core.async        "0.2.391"]
+                 [org.clojure/core.async        "0.2.395"]
                  [reagent                       "0.6.0"]
                  [re-frame                      "0.9.2"]
                  [org.martinklepsch/boot-garden "1.3.2-0"]
@@ -12,7 +12,7 @@
                  [weasel                        "0.7.0"      :scope "test"]
                  [adzerk/boot-cljs              "1.7.228-1"  :scope "test"]
                  [adzerk/boot-cljs-repl         "0.3.3"      :scope "test"]
-                 [adzerk/boot-reload            "0.4.12"     :scope "test"]])
+                 [adzerk/boot-reload            "0.5.1"      :scope "test"]])
 
 (require
   '[adzerk.boot-cljs              :refer [cljs]]
@@ -38,7 +38,8 @@
         (cljs-repl :ids #{"renderer"})
         (reload    :ids #{"renderer"}
                    :ws-host "localhost"
-                   :on-jsload 'eion.renderer.core/init)
+                   :on-jsload 'eion.renderer.core/init
+                   :target-path "target")
         ; Compile renderer =========================================
         (cljs      :ids #{"renderer"})
         ;; Compile JS for main process ==============================
