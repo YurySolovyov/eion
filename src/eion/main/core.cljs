@@ -9,9 +9,7 @@
 (goog-define dev? false)
 
 (defn index-path []
-  (if dev?
-    (str "file:" (.join path js/__dirname "/../../../index.html"))
-    (str "file:" js/__dirname "/index.html")))
+  (str "file:" (js/process.cwd) "/target/index.html"))
 
 (defn load-page [window]
   (.loadURL window (index-path)))

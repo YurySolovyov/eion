@@ -11,7 +11,8 @@ Screenshot:
 0. [Install `boot`](https://github.com/boot-clj/boot#install)
 1. Clone the repo
 2. run `boot watch dev-build`
-3. run `electron target/`
+3. run `boot npm-install`
+4. run `electron target/`
 
 ## Project goals
 
