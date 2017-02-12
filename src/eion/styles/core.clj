@@ -83,7 +83,12 @@
       :padding "0 0.75em"
       :min-width "8em"
       :text-align "center"
+      :transition "0.2s"
     }
+      [:&:hover {
+        :color theme-blue
+      }]
+
       [:.location-highlight {
         :background-color "transparent"
         :height "2px"
@@ -199,7 +204,9 @@
     }]
 
     [:&.selected {
-      :background-color theme-white
+      :border-color theme-blue
+      :background-color theme-blue
+      :color theme-full-white
     }]
 
     [:.directory-item-type {
