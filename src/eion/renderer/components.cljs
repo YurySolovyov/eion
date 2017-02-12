@@ -142,7 +142,7 @@
       [directory-path panel-name @panel-path]
       [directory-progress panel-name]
       [:div { :class "directory-header flex px2" }
-        [:div { :class "directory-header-name mx2 flex" } "Name"]
+        [:div { :class "directory-header-name mx2 px1 flex" } "Name"]
         [:div { :class "directory-header-ext flex" } "Type"]
         [:div { :class "directory-header-size flex" } "Size"]
       ]

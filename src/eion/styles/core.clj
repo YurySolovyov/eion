@@ -181,8 +181,8 @@
   [:.directory-list {
     :overflow-y "scroll"
     :overflow-x "hidden"
-    :max-height "calc(100vh - 231px)"
-    :min-height "calc(100vh - 231px)"
+    :max-height "calc(100vh - 222px)"
+    :min-height "calc(100vh - 222px)"
     :flex-direction "column"
   }]
 
