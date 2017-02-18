@@ -18,6 +18,7 @@
 (def theme-text-color "#34495e")
 (def theme-icon-color "#34495e")
 
+(def shadow-for-active "#999 0 1px 5px")
 (def shadow-strong "#999 0 1px 2px")
 (def shadow-light "#ccc 0 1px 1px")
 
@@ -60,13 +61,22 @@
   [:.panel {
     :max-height "100vh"
     :flex "1"
-  }]
+  }
+    [:&.active
+      [:.panel-container {
+        :outline (str "1px " theme-blue " solid")
+        :box-shadow shadow-for-active
+      }]
+    ]
+  ]
 
   [:.panel-container {
     :flex-direction "column"
     :flex "1"
     :box-shadow shadow-strong
     :max-width "calc(50vw - 20px)"
+    :transition "0.2s"
+    :outline (str "1px transparent solid")
   }]
 
   [:.locations {
@@ -189,6 +199,7 @@
   [:.directory-item {
     :line-height "3rem"
     :min-height "3rem"
+    :height "3rem"
     :cursor "default"
     :-webkit-user-select "none"
     :font-size "0.875em"

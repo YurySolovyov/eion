@@ -50,6 +50,8 @@
 (init-panel :left-panel)
 (init-panel :right-panel)
 
+(dispatch-sync [:set-active-panel :right-panel])
+
 (init-locations)
 
 (r/render-component

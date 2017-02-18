@@ -29,7 +29,7 @@
         dirs-count (int directories)
         items-counts (str file-count " files and " dirs-count " directories.")
         selected-size (selected-file-size selection)]
-      [:div { :class "directory-summary flex" }
+      [:div { :class "directory-summary flex mx1" }
         [:div { :class "counts"} (str total-items items-counts)]
         [:div { :class "selection"} (selected-caption (count selection) selected-size)]
       ]))
@@ -47,6 +47,9 @@
     :file (format-size (:size item))
     :link "<link>"
     ""))
+
+(defn on-panel-click [panel-name]
+  (dispatch [:set-active-panel panel-name]))
 
 (defn on-directory-path-input [panel-name e]
   (let [value (.-value (.-target e))]
@@ -153,8 +156,12 @@
 
 (defn panel [panel-name]
   (let [items (subscribe [:panel-items panel-name])
-        selected-items (subscribe [:selected-items panel-name])]
-    [:div { :class "panel flex p1 border-box" :id panel-name }
+        selected-items (subscribe [:selected-items panel-name])
+        active-panel (subscribe [:active-panel])
+        active-class (if (= @active-panel panel-name) " active")]
+    [:div { :class (str "panel flex p1 border-box" active-class)
+            :id panel-name
+            :on-click (partial on-panel-click panel-name)}
       [:div { :class "panel-container" }
         [directory-list-header panel-name]
         [directory-list panel-name @items @selected-items]
@@ -165,5 +172,5 @@
 (defn panels []
   [:div#panels
     [:div#panels-container { :class "flex" }
-      [panel :right-panel]
-      [panel :left-panel]]])
+      [panel :left-panel]
+      [panel :right-panel]]])

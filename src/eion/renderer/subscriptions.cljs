@@ -17,6 +17,8 @@
 (reg-sub :progress (fn [db [_ panel]]
   (get-in db [panel :progress])))
 
+(reg-sub :active-panel (fn [db] (:active-panel db)))
+
 (reg-sub :panel-items (fn [db [_ panel]]
   (get-in db [panel :items])))
 

@@ -20,6 +20,9 @@
     (assoc-in [panel :items] value)
     (assoc-in [panel :selection] #{}))))
 
+(reg-event-db :set-active-panel (fn [db [_ value]]
+  (assoc db :active-panel value)))
+
 (reg-event-db :update-locations (fn [db [_ value]]
   (assoc db :locations value)))
 
