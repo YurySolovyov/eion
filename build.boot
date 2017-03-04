@@ -7,8 +7,7 @@
                  [re-frame                      "0.9.2"]
                  [org.martinklepsch/boot-garden "1.3.2-0"]
                  [cljsjs/localforage            "1.3.1-0"]
-                 [degree9/boot-exec             "0.6.0"]
-                 [degree9/boot-npm              "0.3.0"]
+                 [degree9/boot-npm              "0.5.0"]
                  [org.clojure/tools.nrepl       "0.2.12"     :scope "test"]
                  [com.cemerick/piggieback       "0.2.1"      :scope "test"]
                  [weasel                        "0.7.0"      :scope "test"]
@@ -25,17 +24,6 @@
   '[degree9.boot-npm              :as npm]
   '[boot.pod                      :refer [copy-resource]])
 
-; (deftask npm-install []
-;   (copy-resource "package.json" "target/package.json")
-;   (dosh "npm" "install" "target/" "--prefix" "target/"))
-
-(deftask npm-install []
-  (comp
-    (npm/npm
-      :package "./package.edn"
-      :cache-key ::npm-modules)
-    (target)))
-
 (deftask prod-build []
   (comp (cljs :ids #{"main"}
               :optimizations :simple)
@@ -45,6 +33,9 @@
 
 (deftask dev-build []
   (comp ;; Inject REPL and reloading code into renderer build =======
+    (npm/npm
+      :package "resources/package.edn"
+      :cache-key ::npm-modules)
     (cljs-repl :ids #{"renderer"})
     (reload    :ids #{"renderer"}
                :ws-host "localhost"

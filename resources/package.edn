@@ -1,21 +1,18 @@
 {
-  :name "eion",
-  :version "0.0.1",
-  :description "File manager build on top of electron",
-  :main "main.js",
-  :keywords [
-    "file"
-    "manager"
-    "electron"
-  ]
+  :name "eion"
+  :version "0.0.1"
+  :description "File manager build on top of electron"
+  :main "main.js"
+  :keywords ["file" "manager" "electron"]
   :dependencies {
     :execa "^0.5.0"
     :path-to-regexp "^1.6.0"
+    :bluebird "3.5.0"
   }
-  :author "YurySolovyov",
-  :license "MIT",
+  :author "YurySolovyov"
+  :license "MIT"
   :repository {
-    :type "git",
+    :type "git"
     :url "https://github.com/YurySolovyov/eion"
   }
 }
