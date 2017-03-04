@@ -7,6 +7,7 @@
                  [re-frame                      "0.9.2"]
                  [org.martinklepsch/boot-garden "1.3.2-0"]
                  [cljsjs/localforage            "1.3.1-0"]
+                 [degree9/boot-npm              "0.3.0"      :scope "test"]
                  [org.clojure/tools.nrepl       "0.2.12"     :scope "test"]
                  [com.cemerick/piggieback       "0.2.1"      :scope "test"]
                  [weasel                        "0.7.0"      :scope "test"]
@@ -20,11 +21,17 @@
   '[adzerk.boot-reload            :refer [reload]]
   '[org.martinklepsch.boot-garden :refer [garden]]
   '[boot.util                     :refer [dosh]]
+  '[degree9.boot-npm              :refer :all]
   '[boot.pod                      :refer [copy-resource]])
 
+; (deftask npm-install []
+;   (copy-resource "package.json" "target/package.json")
+;   (dosh "npm" "install" "target/" "--prefix" "target/"))
+
 (deftask npm-install []
-  (copy-resource "package.json" "target/package.json")
-  (dosh "npm" "install" "target/" "--prefix" "target/"))
+  (comp
+    (npm :package "./package.edn")
+    (target)))
 
 (deftask prod-build []
   (comp (cljs :ids #{"main"}
