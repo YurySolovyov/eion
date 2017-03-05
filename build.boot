@@ -32,7 +32,7 @@
 (deftask dev-build []
   (comp ;; Inject REPL and reloading code into renderer build =======
     (npm/npm
-      :package "resources/package.edn"
+      :package "package.edn"
       :cache-key ::npm-modules)
     (cljs-repl :ids #{"renderer"})
     (reload    :ids #{"renderer"}
