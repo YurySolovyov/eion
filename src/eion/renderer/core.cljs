@@ -16,6 +16,9 @@
 (defn init []
   nil)
 
+(def webframe (.-webFrame (js/require "electron")))
+(.registerURLSchemeAsPrivileged webframe "icon")
+
 (enable-console-print!)
 
 (defn toggle-dev-tools []
