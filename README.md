@@ -1,6 +1,6 @@
 # Eion
 
-Eion is a modern file manager built with web technologies.
+Eion is a file manager built with web technologies.
 
 Screenshot:
 
@@ -8,11 +8,12 @@ Screenshot:
 
 ## Trying it out:
 
-0. [Install `boot`](https://github.com/boot-clj/boot#install)
-1. Clone the repo
-2. run `boot watch dev-build`
-3. run `boot npm-install`
-4. run `electron target/`
+0. Install [`boot`](https://github.com/boot-clj/boot#install)
+1. Install [`electron`](https://github.com/electron/electron): `npm i -g electron`
+2. Clone the repo
+4. Run `boot watch dev-build`
+5. Run `boot npm-install`
+6. Run `electron target/`
 
 ## Project goals
 
@@ -25,6 +26,11 @@ Screenshot:
   - Move
   - Rename
   - Delete
+* basic archive files support:
+  - View archive contents
+  - Extract contents
+  
+
 
 ### Project non-goals:
 * compete with other File Managers
