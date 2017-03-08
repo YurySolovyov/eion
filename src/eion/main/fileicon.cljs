@@ -12,5 +12,4 @@
   (let [parsed (.-query (.parse url (.-url request)))
         filepath  (.-path (.parse querystring parsed))]
     (.getFileIcon app filepath (partial handle-result callback))
-  )
-)
+  ))
