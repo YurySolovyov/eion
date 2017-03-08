@@ -7,6 +7,7 @@
                  [re-frame                      "0.9.2"]
                  [org.martinklepsch/boot-garden "1.3.2-0"]
                  [cljsjs/localforage            "1.3.1-0"]
+                 [degree9/boot-npm              "1.0.0"]
                  [org.clojure/tools.nrepl       "0.2.12"     :scope "test"]
                  [com.cemerick/piggieback       "0.2.1"      :scope "test"]
                  [weasel                        "0.7.0"      :scope "test"]
@@ -19,12 +20,7 @@
   '[adzerk.boot-cljs-repl         :refer [cljs-repl start-repl]]
   '[adzerk.boot-reload            :refer [reload]]
   '[org.martinklepsch.boot-garden :refer [garden]]
-  '[boot.util                     :refer [dosh]]
-  '[boot.pod                      :refer [copy-resource]])
-
-(deftask npm-install []
-  (copy-resource "package.json" "target/package.json")
-  (dosh "npm" "install" "target/" "--prefix" "target/"))
+  '[degree9.boot-npm              :as    npm])
 
 (deftask prod-build []
   (comp (cljs :ids #{"main"}
@@ -35,24 +31,27 @@
 
 (deftask dev-build []
   (comp ;; Inject REPL and reloading code into renderer build =======
-        (cljs-repl :ids #{"renderer"})
-        (reload    :ids #{"renderer"}
-                   :ws-host "localhost"
-                   :on-jsload 'eion.renderer.core/init
-                   :target-path "target")
-        ; Compile renderer =========================================
-        (cljs      :ids #{"renderer"})
-        ;; Compile JS for main process ==============================
-        ;; path.resolve(".") which is used in CLJS's node shim
-        ;; returns the directory `electron` was invoked in and
-        ;; not the directory our main.js file is in.
-        ;; Because of this we need to override the compilers `:asset-path option`
-        ;; See http://dev.clojure.org/jira/browse/CLJS-1444 for details.
-        (cljs      :ids #{"main"}
-                   :compiler-options {:asset-path "target/main.out"
-                                      :closure-defines {'eion.main.core/dev? true}})
+    (npm/npm
+      :package "package.edn"
+      :cache-key ::npm-modules)
+    (cljs-repl :ids #{"renderer"})
+    (reload    :ids #{"renderer"}
+               :ws-host "localhost"
+               :on-jsload 'eion.renderer.core/init
+               :target-path "target")
+    ; Compile renderer =========================================
+    (cljs      :ids #{"renderer"})
+    ;; Compile JS for main process ==============================
+    ;; path.resolve(".") which is used in CLJS's node shim
+    ;; returns the directory `electron` was invoked in and
+    ;; not the directory our main.js file is in.
+    ;; Because of this we need to override the compilers `:asset-path option`
+    ;; See http://dev.clojure.org/jira/browse/CLJS-1444 for details.
+    (cljs      :ids #{"main"}
+               :compiler-options {:asset-path "target/main.out"
+                                  :closure-defines {'eion.main.core/dev? true}})
 
-        (garden :styles-var 'eion.styles.core/base
-                :output-to  "styles.css"
-                :pretty-print true)
-        (target)))
+    (garden :styles-var 'eion.styles.core/base
+            :output-to  "styles.css"
+            :pretty-print true)
+    (target)))
