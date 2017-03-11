@@ -1,4 +1,4 @@
-(ns eion.bindings.electron)
+(ns eion.bindings.electron-renderer)
 
 (def electron (js/require "electron"))
 (def shell    (.-shell electron))

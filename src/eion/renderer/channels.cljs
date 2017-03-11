@@ -1,7 +1,7 @@
 (ns eion.renderer.channels
   (:require-macros [cljs.core.async.macros :as async])
   (:require [eion.directories.core :as dirs]
-            [eion.bindings.electron :as electron]
+            [eion.bindings.electron-renderer :as electron]
             [eion.bindings.storage :as storage]
             [eion.bindings.node :as node]
             [cljs.core.async :as async]
