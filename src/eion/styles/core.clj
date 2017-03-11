@@ -191,8 +191,8 @@
   [:.directory-list {
     :overflow-y "scroll"
     :overflow-x "hidden"
-    :max-height "calc(100vh - 222px)"
-    :min-height "calc(100vh - 222px)"
+    :max-height "calc(100vh - 270px)"
+    :min-height "calc(100vh - 270px)"
     :flex-direction "column"
   }]
 
@@ -246,6 +246,29 @@
         :flex "1"
         :text-align "right"
       }]
+    ]
+  ]
+
+  [:#actions {
+    :height "48px"
+    :justify-content :center
+  }
+    [:.file-buttons {
+      :cursor :pointer
+      :color theme-text-color
+      :align-items :center
+      :flex-direction :row
+      :box-shadow shadow-strong
+    }
+      [:.file-button {
+        :transition "0.2s"
+        :min-width "100px"
+        :text-align :center
+      }
+        [:&:hover {
+          :color theme-blue
+        }]
+      ]
     ]
   ]
 )

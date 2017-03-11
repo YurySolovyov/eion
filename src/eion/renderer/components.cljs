@@ -178,8 +178,18 @@
       ]
     ]))
 
-(defn panels []
-  [:div#panels
+(defn main []
+  [:div#main
     [:div#panels-container { :class "flex" }
       [panel :left-panel]
-      [panel :right-panel]]])
+      [panel :right-panel]
+    ]
+    [:div#actions { :class "flex"}
+      [:div { :class "file-buttons flex" }
+        [:div { :class "file-button p1" } "Rename"]
+        [:div { :class "file-button p1" }   "Copy"]
+        [:div { :class "file-button p1" }   "Move"]
+        [:div { :class "file-button p1" } "Delete"]
+      ]
+    ]
+  ])

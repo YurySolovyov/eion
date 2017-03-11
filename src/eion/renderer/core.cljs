@@ -55,6 +55,6 @@
 (init-locations)
 
 (r/render-component
-  [components/panels]
+  [components/main]
   (.getElementById js/document "container")
   send-ready)
