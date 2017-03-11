@@ -4,7 +4,7 @@
             [clojure.string :refer [split split-lines trim]]
             [eion.bindings.npm :as npm]
             [eion.bindings.node :as node]
-            [eion.bindings.electron :as electron]))
+            [eion.bindings.electron-renderer :as electron]))
 
 (defn make-route [path]
   (npm/path-to-regexp (str path "*")))

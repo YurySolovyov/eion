@@ -102,12 +102,21 @@
     [:div { :class (str "directory-progress " (if is-full "full"))
             :style { :width (str percent "%") } }]))
 
+(defn directory-item-icon [item]
+  (let [type (:type item)
+        type-class (item-type-class type)]
+    (case type
+      :dir [:div { :class (str "directory-item-type center " type-class) }]
+      [:div { :class "directory-item-type file flex" }
+        [:img { :src (str "icon://file?path=" (:fullpath item)) }]
+      ])))
+
 (defn directory-item [panel-name item selection]
   [:div { :key (:name item)
           :class (str "directory-item flex px1 " (if (selection item) "selected"))
           :on-double-click (partial on-item-dblclick item panel-name)
           :on-click (partial on-item-click item panel-name) }
-    [:div { :class (str "directory-item-type " (item-type-class (:type item))) }]
+    [directory-item-icon item]
     [:div { :class "directory-item-name px1"} (:name item)]
     [:div { :class "directory-item-meta flex"}
       [:div { :class "directory-item-ext"} (:ext item)]

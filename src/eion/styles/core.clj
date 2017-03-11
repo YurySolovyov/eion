@@ -18,7 +18,7 @@
 (def theme-text-color "#34495e")
 (def theme-icon-color "#34495e")
 
-(def shadow-for-active "#999 0 1px 5px")
+(def shadow-for-active (str theme-blue " 0 1px 5px"))
 (def shadow-strong "#999 0 1px 2px")
 (def shadow-light "#ccc 0 1px 1px")
 
@@ -221,10 +221,15 @@
     }]
 
     [:.directory-item-type {
-      :width "24px"
+      :width "32px"
       :color theme-icon-color
       :line-height "4em"
-    }]
+    }
+      [:&.file {
+        :justify-content "center"
+        :flex-direction "column"
+      }]
+    ]
 
     [:.directory-item-name {
       :flex "3"

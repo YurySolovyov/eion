@@ -1,10 +1,12 @@
-(ns eion.main.core)
+(ns eion.main.core
+  (:require [eion.main.fileicon :as fileicon]))
 
 (def electron      (js/require "electron"))
 (def path          (js/require "path"))
 (def app           (.-app electron))
 (def BrowserWindow (.-BrowserWindow electron))
 (def ipc           (.-ipcMain electron))
+(def protocol      (.-protocol electron))
 
 (goog-define dev? false)
 
@@ -24,6 +26,11 @@
 
 (defn create-window [window-props]
   (BrowserWindow. window-props))
+
+(defn register-fileicon-protocol []
+  (.registerStandardSchemes protocol (array "icon"))
+  (.on app "ready" (fn []
+    (.registerBufferProtocol protocol "icon" fileicon/handler))))
 
 (defn toggle-dev-tools []
   (.toggleDevTools @main-window))
@@ -45,4 +52,5 @@
   (enable-console-print!)
   (.on app "window-all-closed" #(when-not (= js/process.platform "darwin") (.quit app)))
   (.on app "ready" init-browser)
+  (register-fileicon-protocol)
   (set! *main-cli-fn* (fn [] nil)))
