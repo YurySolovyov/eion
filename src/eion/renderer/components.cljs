@@ -73,6 +73,18 @@
 (defn on-up-click [panel-name]
   (dispatch [:navigate-up panel-name]))
 
+(defn on-rename-click [params]
+  (println "rename click"))
+
+(defn on-copy-click [params]
+  (println "copy click"))
+
+(defn on-move-click [params]
+  (println "move click"))
+
+(defn on-delete-click [params]
+  (println "delete click"))
+
 (defn on-locations-wheel [scroll-state e]
   (if (> (.-deltaY e) 0)
         (reset! scroll-state (min (inc @scroll-state) 0))
@@ -177,6 +189,15 @@
         [directory-list-footer panel-name @items @selected-items]
       ]
     ]))
+(defn file-buttons [params]
+  [:div#actions { :class "flex"}
+    [:div { :class "file-buttons flex" }
+      [:div { :class "file-button p1" :on-click on-rename-click } "Rename"]
+      [:div { :class "file-button p1" :on-click on-copy-click }     "Copy"]
+      [:div { :class "file-button p1" :on-click on-move-click }     "Move"]
+      [:div { :class "file-button p1" :on-click on-delete-click } "Delete"]
+    ]
+  ])
 
 (defn main []
   [:div#main
@@ -184,12 +205,5 @@
       [panel :left-panel]
       [panel :right-panel]
     ]
-    [:div#actions { :class "flex"}
-      [:div { :class "file-buttons flex" }
-        [:div { :class "file-button p1" } "Rename"]
-        [:div { :class "file-button p1" }   "Copy"]
-        [:div { :class "file-button p1" }   "Move"]
-        [:div { :class "file-button p1" } "Delete"]
-      ]
-    ]
+    [file-buttons]
   ])
