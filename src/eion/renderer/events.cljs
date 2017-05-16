@@ -32,6 +32,10 @@
 (reg-event-db :select-item (fn [db [_ panel item]]
   (assoc-in db [panel :selection] #{item})))
 
+(reg-event-db :rename (fn [db [_ value]]
+  (let [active-panel (get-in db [:active-panel])]
+    (assoc-in db [active-panel :renaming] value))))
+
 (reg-event-db :add-selection (fn [db [_ panel item]]
   (assoc-in db [panel :selection] (conj (get-in db [panel :selection]) item))))
 

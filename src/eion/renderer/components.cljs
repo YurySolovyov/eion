@@ -73,16 +73,17 @@
 (defn on-up-click [panel-name]
   (dispatch [:navigate-up panel-name]))
 
-(defn on-rename-click [params]
-  (println "rename click"))
+(defn on-rename-click [selection]
+  (let [selected-count (count selection)]
+    (if (= selected-count 1) (dispatch [:rename (first selection)]))))
 
-(defn on-copy-click [params]
+(defn on-copy-click [selection]
   (println "copy click"))
 
-(defn on-move-click [params]
+(defn on-move-click [selection]
   (println "move click"))
 
-(defn on-delete-click [params]
+(defn on-delete-click [selection]
   (println "delete click"))
 
 (defn on-locations-wheel [scroll-state e]
@@ -105,7 +106,7 @@
               :on-wheel (partial on-locations-wheel scroll-state) }
         [:div { :class "locations-list flex"
                 :style { :margin-left (str @scroll-state "em") } }
-              (for [item items] (location panel-name item))]])))
+              (for [item items] ^{:key item} [location panel-name item])]])))
 
 (defn directory-progress [panel-name]
   (let [progress (subscribe [:progress panel-name])
@@ -136,11 +137,15 @@
     ]
   ])
 
-(defn directory-list [panel-name items selection]
-  [:div { :class "directory-items"}
-    [:div { :class "directory-list flex" }
-      (for [item items] (directory-item panel-name item selection))]
-  ])
+(defn directory-list [panel-name]
+  (let [items @(subscribe [:panel-items panel-name])
+        selection @(subscribe [:selected-items panel-name])
+        renaming @(subscribe [:renaming panel-name])]
+    ; TODO: compare and use different component type
+    [:div { :class "directory-items"}
+      [:div { :class "directory-list flex" }
+        (for [item items] ^{:key item} [directory-item panel-name item selection])]
+    ]))
 
 (defn directory-path [panel-name panel-path]
   (let [navigation-error (subscribe [:navigation-error panel-name])
@@ -172,32 +177,39 @@
       ]
     ]))
 
-(defn directory-list-footer [panel-name items selection]
-  [:div { :class "directory-list-footer flex px3" } (footer-message items selection)])
+(defn directory-list-footer [panel-name]
+  (let [items (subscribe [:panel-items panel-name])
+        selection (subscribe [:selected-items panel-name])]
+    [:div { :class "directory-list-footer flex px3" } (footer-message @items @selection)]))
 
 (defn panel [panel-name]
-  (let [items (subscribe [:panel-items panel-name])
-        selected-items (subscribe [:selected-items panel-name])
-        active-panel (subscribe [:active-panel])
+  (let [active-panel (subscribe [:active-panel])
         active-class (if (= @active-panel panel-name) " active")]
     [:div { :class (str "panel flex p1 border-box" active-class)
             :id panel-name
             :on-click (partial on-panel-click panel-name)}
       [:div { :class "panel-container" }
         [directory-list-header panel-name]
-        [directory-list panel-name @items @selected-items]
-        [directory-list-footer panel-name @items @selected-items]
+        [directory-list panel-name]
+        [directory-list-footer panel-name]
       ]
     ]))
+
+(defn file-action-button [handler selection label]
+  [:div { :class "file-button p1"
+          :on-click (partial handler selection) } label])
+
 (defn file-buttons [params]
-  [:div#actions { :class "flex"}
-    [:div { :class "file-buttons flex" }
-      [:div { :class "file-button p1" :on-click on-rename-click } "Rename"]
-      [:div { :class "file-button p1" :on-click on-copy-click }     "Copy"]
-      [:div { :class "file-button p1" :on-click on-move-click }     "Move"]
-      [:div { :class "file-button p1" :on-click on-delete-click } "Delete"]
-    ]
-  ])
+  (let [active-panel (subscribe [:active-panel])
+        selection (subscribe [:selected-items @active-panel])]
+    [:div#actions { :class "flex"}
+      [:div { :class "file-buttons flex" }
+        [file-action-button on-rename-click @selection "Rename"]
+        [file-action-button on-copy-click @selection     "Copy"]
+        [file-action-button on-move-click @selection     "Move"]
+        [file-action-button on-delete-click @selection "Delete"]
+      ]
+    ]))
 
 (defn main []
   [:div#main

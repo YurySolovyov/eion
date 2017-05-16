@@ -25,6 +25,9 @@
 (reg-sub :selected-items (fn [db [_ panel]]
   (get-in db [panel :selection])))
 
+(reg-sub :renaming (fn [db [_ panel]]
+  (get-in db [panel :renaming])))
+
 (reg-sub :current-path (fn [db [_ panel]]
   (get-in db [panel :current-path])))
 
