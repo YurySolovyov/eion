@@ -1,17 +1,17 @@
 (set-env!
  :source-paths   #{"src"}
  :resource-paths #{"resources"}
- :dependencies '[[org.clojure/clojurescript     "1.9.542"]
-                 [org.clojure/core.async        "0.3.442"]
-                 [reagent                       "0.6.1"]
-                 [re-frame                      "0.9.3"]
+ :dependencies '[[org.clojure/clojurescript     "1.9.660"]
+                 [org.clojure/core.async        "0.3.443"]
+                 [reagent                       "0.7.0"]
+                 [re-frame                      "0.9.4"]
                  [org.martinklepsch/boot-garden "1.3.2-0"]
                  [cljsjs/localforage            "1.3.1-0"]
                  [degree9/boot-npm              "1.0.0"]
                  [org.clojure/tools.nrepl       "0.2.12"     :scope "test"]
                  [com.cemerick/piggieback       "0.2.1"      :scope "test"]
                  [weasel                        "0.7.0"      :scope "test"]
-                 [adzerk/boot-cljs              "1.7.228-1"  :scope "test"]
+                 [adzerk/boot-cljs              "2.0.0"      :scope "test"]
                  [adzerk/boot-cljs-repl         "0.3.3"      :scope "test"]
                  [adzerk/boot-reload            "0.5.1"      :scope "test"]])
 
