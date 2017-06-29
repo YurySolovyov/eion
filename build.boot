@@ -40,7 +40,8 @@
                :on-jsload 'eion.renderer.core/init
                :target-path "target")
     ; Compile renderer =========================================
-    (cljs      :ids #{"renderer"})
+    (cljs      :ids #{"renderer"}
+               :compiler-options { :parallel-build true })
     ;; Compile JS for main process ==============================
     ;; path.resolve(".") which is used in CLJS's node shim
     ;; returns the directory `electron` was invoked in and
@@ -48,8 +49,9 @@
     ;; Because of this we need to override the compilers `:asset-path option`
     ;; See http://dev.clojure.org/jira/browse/CLJS-1444 for details.
     (cljs      :ids #{"main"}
-               :compiler-options {:asset-path "target/main.out"
-                                  :closure-defines {'eion.main.core/dev? true}})
+               :compiler-options { :asset-path "target/main.out"
+                                   :closure-defines {'eion.main.core/dev? true }
+                                   :parallel-build true })
 
     (garden :styles-var 'eion.styles.core/base
             :output-to  "styles.css"

@@ -91,6 +91,10 @@
         (reset! scroll-state (min (inc @scroll-state) 0))
         (reset! scroll-state (max (dec @scroll-state) -4))))
 
+(defn editable-item [panel-name item]
+  ; TODO: improve editable-item
+  [:span (:name item)])
+
 (defn location [panel-name { name :name location-path :path is-current :is-current :as item }]
   [:div { :class (str "location flex-column border-box" (if is-current " current"))
           :key location-path
@@ -124,9 +128,9 @@
         [:img { :src (str "icon://file?path=" (:fullpath item)) }]
       ])))
 
-(defn directory-item [panel-name item selection]
+(defn directory-item [panel-name item options]
   [:div { :key (:name item)
-          :class (str "directory-item flex px1 " (if (selection item) "selected"))
+          :class (str "directory-item flex px1 " (if (:selected options) "selected"))
           :on-double-click (partial on-item-dblclick item panel-name)
           :on-click (partial on-item-click item panel-name) }
     [directory-item-icon item]
@@ -141,27 +145,27 @@
   (let [items @(subscribe [:panel-items panel-name])
         selection @(subscribe [:selected-items panel-name])
         renaming @(subscribe [:renaming panel-name])]
-    ; TODO: compare and use different component type
     [:div { :class "directory-items"}
-      [:div { :class "directory-list flex" }
-        (for [item items] ^{:key item} [directory-item panel-name item selection])]
-    ]))
+      [:div { :class "directory-list flex"}
+        (for [item items]
+          (if (and (some? renaming) (= renaming item))
+            ^{:key item} [editable-item panel-name item]
+            ^{:key item} [directory-item panel-name item {:selected (selection item)}]))]]))
 
 (defn directory-path [panel-name panel-path]
   (let [navigation-error (subscribe [:navigation-error panel-name])
         custom-path (subscribe [:custom-path panel-name])
         path-value (if (= @custom-path panel-path) panel-path @custom-path)]
-    [:div { :class "directory-path flex" }
-      [:div {
+    [:div { :class "directory-path flex"}
+      [:div {}
         :class (str icon-class "up-button mdi-chevron-up m1 inline-block")
-        :on-click (partial on-up-click panel-name)}]
+        :on-click (partial on-up-click panel-name)]
       [:input { :type "text"
                 :class (str "panel-path p1 flex" (if @navigation-error " error"))
                 :placeholder panel-path
                 :value (str path-value)
                 :on-input (partial on-directory-path-input panel-name)
-                :on-key-press (partial on-directory-path-submit panel-name) }]
-    ]))
+                :on-key-press (partial on-directory-path-submit panel-name)}]]))
 
 (defn directory-list-header [panel-name]
   (let [current-locations (subscribe [:locations panel-name])
