@@ -7,6 +7,9 @@
 
 (def platform (.platform os))
 
+(defn path-dirname [dir-path]
+  (.dirname path dir-path))
+
 (defn path-resolve [dir-path]
   (.resolve path dir-path))
 
@@ -38,6 +41,15 @@
   ([item-path] (fs-access item-path (async/chan 1)))
   ([item-path out-chan]
     (.access fs item-path
+      (fn [err]
+        (async/put! out-chan (if err false true))
+        (async/close! out-chan)))
+    out-chan))
+
+(defn fs-rename
+  ([from to] (fs-rename from to (async/chan 1)))
+  ([from to out-chan]
+    (.rename fs from to
       (fn [err]
         (async/put! out-chan (if err false true))
         (async/close! out-chan)))

@@ -11,18 +11,26 @@
             [reagent.core :as r]
             [re-frame.core :refer [dispatch dispatch-sync]]))
 
-(def key-events (async/chan))
-
-(defn init []
-  nil)
-
 (enable-console-print!)
+
+(def key-events (async/chan))
+(defn key-events-handler [ev]
+  (async/put! key-events ev))
+
+(defn devtools-toggle? [event]
+  (and (.-shiftKey event) (.-ctrlKey event) (= (.-code event) "KeyI")))
+
+(defn rename-shortcut? [event]
+  (= (.-key event) "F2"))
 
 (defn toggle-dev-tools []
   (async/put! ipc { :name "toggle-dev-tools" }))
 
 (defn send-ready []
   (async/put! ipc { :name "ready" }))
+
+(defn rename-selected []
+  (dispatch [:rename]))
 
 (defn init-panel [panel-name]
   (async/go
@@ -35,12 +43,12 @@
     (let [locations (async/<! (get-locations))]
       (dispatch [:update-locations locations]))))
 
-(async/go
-  (let [ev (async/<! key-events)]
-    (if (and (.-shiftKey ev) (.-ctrlKey ev) (= (.-code ev) "KeyI"))
-      (toggle-dev-tools))))
-
-(events/listen js/window (.-KEYPRESS events/EventType) (fn [ev] (async/put! key-events ev)))
+(async/go-loop [ev (async/<! key-events)]
+  (cond
+    (devtools-toggle? ev) (toggle-dev-tools)
+    (rename-shortcut? ev) (rename-selected)
+    :else nil)
+  (recur (async/<! key-events)))
 
 (dispatch-sync [:update-panel :left-panel []])
 (dispatch-sync [:update-panel :right-panel []])
@@ -58,3 +66,7 @@
   [components/main]
   (.getElementById js/document "container")
   send-ready)
+
+(defn on-jsload []
+  (events/removeAll js/window (.-KEYDOWN events/EventType))
+  (events/listen js/window (.-KEYDOWN events/EventType) key-events-handler))

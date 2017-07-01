@@ -17,7 +17,7 @@
 (reg-sub :progress (fn [db [_ panel]]
   (get-in db [panel :progress])))
 
-(reg-sub :active-panel (fn [db] (:active-panel db)))
+(reg-sub :active-panel (fn [db] (db :active-panel)))
 
 (reg-sub :panel-items (fn [db [_ panel]]
   (get-in db [panel :items])))
@@ -27,6 +27,12 @@
 
 (reg-sub :renaming (fn [db [_ panel]]
   (get-in db [panel :renaming])))
+
+(reg-sub :renamed-value (fn [db [_ panel]]
+  (get-in db [panel :renamed-value])))
+
+(reg-sub :rename-error-state (fn [db [_ panel]]
+  (get-in db [(db :active-panel) :rename-error-state])))
 
 (reg-sub :current-path (fn [db [_ panel]]
   (get-in db [panel :current-path])))

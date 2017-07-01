@@ -1,4 +1,4 @@
-(ns eion.styles.core
+(ns eion.styles.styles
   (:require [garden.def :refer :all]
             [garden.selectors :as s]
             [garden.stylesheet :refer [rule at-font-face]]))
@@ -238,6 +238,30 @@
       :white-space "nowrap"
       :overflow "hidden"
     }]
+
+    [:.directory-item-name-field {
+      :flex "3"
+    }
+
+      [:input {
+        :line-height "44px"
+        :border "none"
+        :font-family "OpenSans"
+        :font-size "1em"
+        :color theme-text-color
+        :width "100%"
+        :transition "0.2s"
+      }
+        [:&:focus {
+          :outline "none"
+          :color theme-blue
+        }]
+
+        [:&.error {
+          :color theme-red
+        }]
+      ]
+    ]
 
     [:.directory-item-meta {
       :flex "1"

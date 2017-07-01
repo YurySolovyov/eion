@@ -1,7 +1,7 @@
 (ns eion.renderer.events
   (:require [re-frame.core :refer [reg-event-db reg-event-fx reg-fx]]
             [cljs.core.async :as async]
-            [eion.renderer.channels :refer [navigations maybe-navigations file-activations]]
+            [eion.renderer.channels :refer [navigations maybe-navigations file-activations maybe-renames]]
             [eion.directories.core :refer [path-up]]))
 
 (reg-fx :fetch-panel-items (fn [[panel next-path]]
@@ -12,6 +12,9 @@
 
 (reg-fx :try-navigate (fn [maybe-navigation]
   (async/put! maybe-navigations maybe-navigation)))
+
+(reg-fx :try-perform-rename (fn [maybe-rename]
+  (async/put! maybe-renames maybe-rename)))
 
 (reg-event-db :update-panel (fn [db [_ panel value]]
   ; TODO re-write to use pairs for assoc-in
@@ -32,9 +35,28 @@
 (reg-event-db :select-item (fn [db [_ panel item]]
   (assoc-in db [panel :selection] #{item})))
 
-(reg-event-db :rename (fn [db [_ value]]
+(reg-event-db :rename (fn [db [_]]
+  (let [active-panel (get-in db [:active-panel])
+        selection (get-in db [active-panel :selection])
+        selected-count (count selection)]
+    (if (= selected-count 1)
+      (let [selected (first selection)]
+        (-> db
+          (assoc-in [active-panel :renaming] selected)
+          (assoc-in [active-panel :renamed-value] (selected :name))))
+      ))))
+
+(reg-event-db :update-rename-input (fn [db [_ value]]
   (let [active-panel (get-in db [:active-panel])]
-    (assoc-in db [active-panel :renaming] value))))
+    (assoc-in db [active-panel :renamed-value] value))))
+
+(reg-event-db :reset-rename (fn [db [_]]
+  (let [active-panel (get-in db [:active-panel])]
+    (update-in db [active-panel] dissoc :renaming))))
+
+(reg-event-db :rename-error-state (fn [db [_ value]]
+  (let [active-panel (get-in db [:active-panel])]
+    (assoc-in db [active-panel :rename-error-state] value))))
 
 (reg-event-db :add-selection (fn [db [_ panel item]]
   (assoc-in db [panel :selection] (conj (get-in db [panel :selection]) item))))
@@ -75,6 +97,18 @@
   (case (:type item)
     :dir { :dispatch [:navigate panel (:fullpath item)] }
     {
-      :open-file [(:fullpath item)]
+      :open-file [(item :fullpath)]
+    })
+  ))
+
+(reg-event-fx :perform-rename (fn [{:keys [db]} [_]]
+  (let [active-panel (get-in db [:active-panel])
+        item (get-in db [active-panel :renaming])
+        new-name (get-in db [active-panel :renamed-value])]
+    { :try-perform-rename {
+        :item item
+        :new-name new-name
+        :panel active-panel
+      }
     })
   ))

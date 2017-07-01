@@ -37,7 +37,7 @@
     (cljs-repl :ids #{"renderer"})
     (reload    :ids #{"renderer"}
                :ws-host "localhost"
-               :on-jsload 'eion.renderer.core/init
+               :on-jsload 'eion.renderer.core/on-jsload
                :target-path "target")
     ; Compile renderer =========================================
     (cljs      :ids #{"renderer"}
@@ -53,7 +53,7 @@
                                    :closure-defines {'eion.main.core/dev? true }
                                    :parallel-build true })
 
-    (garden :styles-var 'eion.styles.core/base
+    (garden :styles-var 'eion.styles.styles/base
             :output-to  "styles.css"
             :pretty-print true)
     (target)))
