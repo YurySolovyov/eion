@@ -12,6 +12,7 @@
 (def file-activations (async/chan))
 (def maybe-renames (async/chan))
 (def ipc (async/chan))
+(def error-timeout 200)
 
 (defn dispatch-error [db-path before after timeout]
   (async/go
@@ -36,7 +37,7 @@
 (async/go-loop [{ path :path panel :panel } (async/<! maybe-navigations)]
   (if (async/<! (node/fs-access path))
     (dispatch [:navigate panel path])
-    (dispatch-error [:navigation-error-state panel] true false 200))
+    (dispatch-error [:navigation-error-state panel] true false error-timeout))
   (recur (async/<! maybe-navigations)))
 
 (async/go-loop [{ new-name :new-name item :item panel :panel } (async/<! maybe-renames)]
@@ -47,8 +48,8 @@
     (if-not exists
       (if (async/<! (node/fs-rename old-path new-path))
         (dispatch [:navigate panel directory-path])
-        (dispatch-error [:rename-error-state] item nil 200))
-      (dispatch-error [:rename-error-state] item nil 200))
+        (dispatch-error [:rename-error-state] item nil error-timeout))
+      (dispatch-error [:rename-error-state] item nil error-timeout))
   (recur (async/<! maybe-renames))))
 
 (async/go-loop [activation (async/<! file-activations)]

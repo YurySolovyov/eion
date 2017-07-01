@@ -13,7 +13,7 @@
 
 (defn selected-caption [selected-count bytes]
   (let [selected-counts (if (= selected-count 0) "" (str "Selected " selected-count " items"))
-        selected-size (if (= bytes 0) "" (str  " of " (format-size bytes) " bytes"))]
+        selected-size (if (= bytes 0) "" (str  " of " (format-size bytes) " bytes total"))]
     (str selected-counts selected-size)))
 
 (defn selected-file-size [items]
@@ -89,6 +89,7 @@
     nil))
 
 (defn on-copy-click []
+  (dispatch [:activate-dialog])
   (println "copy click"))
 
 (defn on-move-click []
@@ -237,6 +238,13 @@
       ]
     ]))
 
+(defn dialog-wrapper []
+  (let [dialog-active (subscribe [:show-dialog])
+        dialog-component (subscribe [:dialog-component-type])]
+    [:div { :class (str "dialog-wrapper " (if @dialog-active "active")) }
+      ; [dialog-component]
+    ]))
+
 (defn main []
   [:div#main
     [:div#panels-container { :class "flex" }
@@ -244,4 +252,5 @@
       [panel :right-panel]
     ]
     [file-buttons]
+    [dialog-wrapper]
   ])

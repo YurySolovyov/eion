@@ -64,6 +64,12 @@
 (reg-event-db :custom-path-input (fn [db [_ panel value]]
   (assoc-in db [panel :custom-path] value)))
 
+(reg-event-db :activate-dialog (fn [db]
+  (assoc-in db [:show-dialog] true)))
+
+(reg-event-db :deactivate-dialog (fn [db]
+  (assoc-in db [:show-dialog] false)))
+
 (reg-event-fx :navigation-error-state (fn [{:keys [db]} [_ panel state]]
   (let [custom-path-key (if state :current-path :custom-path)
         new-custom-path (get-in db [panel custom-path-key])]

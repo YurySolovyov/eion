@@ -215,7 +215,6 @@
     }]
 
     [:&.selected {
-      :border-color theme-blue
       :background-color theme-blue
       :color theme-full-white
     }]
@@ -294,5 +293,26 @@
         }]
       ]
     ]
+  ]
+
+  [:.dialog-wrapper {
+    :display "none"
+    :position "absolute"
+    :top 0
+    :right 0
+    :bottom 0
+    :left 0
+    :margin "auto"
+    :width "500px"
+    :height "500px"
+    :background-color theme-full-white
+    :box-shadow shadow-strong
+    :outline (str "1px transparent solid")
+  }
+
+    [:&.active {
+      :display "block"
+      :outline (str "1px " theme-blue " solid")
+    }]
   ]
 )

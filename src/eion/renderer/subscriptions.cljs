@@ -39,3 +39,9 @@
 
 (reg-sub :custom-path (fn [db [_ panel]]
   (get-in db [panel :custom-path])))
+
+(reg-sub :show-dialog (fn [db [_]]
+  (get-in db [:show-dialog])))
+
+(reg-sub :dialog-component-type (fn [db [_]]
+  (get-in db [:dialog-component-type])))

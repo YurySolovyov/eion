@@ -18,10 +18,15 @@
   (async/put! key-events ev))
 
 (defn devtools-toggle? [event]
-  (and (.-shiftKey event) (.-ctrlKey event) (= (.-code event) "KeyI")))
+  (or
+    (= (.-key event) "F12")
+    (and (.-shiftKey event) (.-ctrlKey event) (= (.-code event) "KeyI"))))
 
 (defn rename-shortcut? [event]
   (= (.-key event) "F2"))
+
+(defn dialig-dismiss? [event]
+  (= (.-key event) "Escape"))
 
 (defn toggle-dev-tools []
   (async/put! ipc { :name "toggle-dev-tools" }))
@@ -31,6 +36,9 @@
 
 (defn rename-selected []
   (dispatch [:rename]))
+
+(defn dismiss-dialog []
+  (dispatch [:deactivate-dialog]))
 
 (defn init-panel [panel-name]
   (async/go
@@ -47,6 +55,7 @@
   (cond
     (devtools-toggle? ev) (toggle-dev-tools)
     (rename-shortcut? ev) (rename-selected)
+    (dialig-dismiss? ev) (dismiss-dialog)
     :else nil)
   (recur (async/<! key-events)))
 
