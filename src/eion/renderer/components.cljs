@@ -1,9 +1,10 @@
 (ns eion.renderer.components
   (:require [re-frame.core :refer [subscribe dispatch]]
             [eion.renderer.subscriptions]
+            [class-names.core :refer [class-names]]
             [reagent.core :as r]))
 
-(def icon-class "mdi mdi-24px ")
+(def icon-class [:mdi :mdi-24px])
 
 (defn format-size [size]
   (clojure.string/replace (str size) #"(\d)(?=(\d{3})+(?!\d))" "$1 "))
@@ -36,10 +37,10 @@
 
 (defn item-type-class [type]
   (case type
-    :dir (str icon-class "mdi-folder")
-    :file (str icon-class "mdi-file")
-    :link (str icon-class "mdi-file-outline")
-    :locked (str icon-class "mdi-lock-outline")))
+    :dir (class-names icon-class :mdi-folder)
+    :file (class-names icon-class :mdi-file)
+    :link (class-names icon-class :mdi-file-outline)
+    :locked (class-names icon-class :mdi-lock-outline)))
 
 (defn item-size-label [item]
   (case (item :type)
@@ -104,7 +105,7 @@
     (reset! scroll-state (max (dec @scroll-state) -4))))
 
 (defn location [panel-name { name :name location-path :path is-current :is-current :as item }]
-  [:div { :class (str "location flex-column border-box" (if is-current " current"))
+  [:div { :class (class-names :location :flex-column :border-box { :current is-current })
           :key location-path
           :on-click (partial on-location-click panel-name item) }
     [:span name]
@@ -124,14 +125,14 @@
   (let [progress (subscribe [:progress panel-name])
         percent (* 100 @progress)
         is-full (= percent 100)]
-    [:div { :class (str "directory-progress " (if is-full "full"))
+    [:div { :class (class-names :directory-progress { :full is-full })
             :style { :width (str percent "%") } }]))
 
 (defn directory-item-icon [item]
   (let [type (item :type)
         type-class (item-type-class type)]
     (case type
-      :dir [:div { :class (str "directory-item-type center " type-class) }]
+      :dir [:div { :class (class-names :directory-item-type :center type-class) }]
       [:div { :class "directory-item-type file flex" }
         [:img { :src (str "icon://file?path=" (item :fullpath)) }]])))
 
@@ -144,7 +145,7 @@
         (.focus (.querySelector (r/dom-node this) "input")))
       :reagent-render (fn []
         [:div { :class "directory-item-name-field" }
-          [:input { :class (str "px1 " (if (= item @rename-error-item) "error"))
+          [:input { :class (class-names :px1 { :error (= item @rename-error-item) })
                     :type "text"
                     :value @item-name
                     :on-change on-rename-input-change
@@ -153,7 +154,7 @@
 
 (defn directory-item [panel-name item options]
   [:div { :key (item :name)
-          :class (str "directory-item flex px1 " (if (options :selected) "selected"))
+          :class (class-names :directory-item :flex :px1 { :selected (options :selected) })
           :on-double-click (partial on-item-dblclick item panel-name)
           :on-click (partial on-item-click item panel-name) }
     [directory-item-icon item]
@@ -173,7 +174,7 @@
         (for [item items]
           ^{ :key item }
           [directory-item panel-name item {
-            :selected (selection item)
+            :selected (contains? selection item)
             :renaming (and (some? renaming) (= renaming item))
           }])]]))
 
@@ -182,10 +183,10 @@
         custom-path (subscribe [:custom-path panel-name])
         path-value (str (if (= @custom-path panel-path) panel-path @custom-path))]
     [:div { :class "directory-path flex"}
-      [:div { :class (str icon-class "up-button mdi-chevron-up m1 inline-block")
+      [:div { :class (class-names icon-class :up-button :mdi-chevron-up :m1 :inline-block)
               :on-click (partial on-up-click panel-name) }]
       [:input { :type "text"
-                :class (str "panel-path p1 flex" (if @navigation-error " error"))
+                :class (class-names :panel-path :p1 :flex { :error @navigation-error })
                 :placeholder panel-path
                 :value path-value
                 :on-change (partial on-directory-path-input panel-name)
@@ -211,9 +212,8 @@
     [:div { :class "directory-list-footer flex px3" } (footer-message @items @selection)]))
 
 (defn panel [panel-name]
-  (let [active-panel (subscribe [:active-panel])
-        active-class (if (= @active-panel panel-name) " active")]
-    [:div { :class (str "panel flex p1 border-box" active-class)
+  (let [active-panel (subscribe [:active-panel])]
+    [:div { :class (class-names :panel :flex :p1 :border-box { :active (= @active-panel panel-name) })
             :id panel-name
             :on-click (partial on-panel-click panel-name)}
       [:div { :class "panel-container" }
@@ -241,7 +241,7 @@
 (defn dialog-wrapper []
   (let [dialog-active (subscribe [:show-dialog])
         dialog-component (subscribe [:dialog-component-type])]
-    [:div { :class (str "dialog-wrapper " (if @dialog-active "active")) }
+    [:div { :class (class-names :dialog-wrapper { :active @dialog-active }) }
       ; [dialog-component]
     ]))
 

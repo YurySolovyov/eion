@@ -8,6 +8,7 @@
                  [org.martinklepsch/boot-garden "1.3.2-0"]
                  [cljsjs/localforage            "1.3.1-0"]
                  [degree9/boot-npm              "1.0.0"]
+                 [class-names                   "0.1.1"]
                  [org.clojure/tools.nrepl       "0.2.12"     :scope "test"]
                  [com.cemerick/piggieback       "0.2.1"      :scope "test"]
                  [weasel                        "0.7.0"      :scope "test"]
