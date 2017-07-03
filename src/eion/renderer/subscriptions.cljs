@@ -25,6 +25,10 @@
 (reg-sub :selected-items (fn [db [_ panel]]
   (get-in db [panel :selection])))
 
+(reg-sub :active-panel-selection (fn [db]
+  (let [active-panel (db :active-panel)]
+    (get-in db [active-panel :selection]))))
+
 (reg-sub :renaming (fn [db [_ panel]]
   (get-in db [panel :renaming])))
 
@@ -43,5 +47,11 @@
 (reg-sub :show-dialog (fn [db [_]]
   (get-in db [:show-dialog])))
 
-(reg-sub :dialog-component-type (fn [db [_]]
-  (get-in db [:dialog-component-type])))
+(reg-sub :dialog-type (fn [db [_]]
+  (get-in db [:dialog-type])))
+
+(reg-sub :from-to (fn [db [_]]
+  (let [active-panel (db :active-panel)
+        from active-panel
+        to (if (= active-panel :right-panel) :left-panel :right-panel)]
+    [(db from) (db to)])))

@@ -28,11 +28,11 @@
 (async/go-loop [{ path :path panel :panel } (async/<! navigations)
                 response-channel (async/chan)
                 progress-channel (async/chan)]
-    (watch-progress panel progress-channel)
-    (dirs/init-directory path response-channel progress-channel)
-    (dispatch [:update-panel panel (async/<! response-channel)])
-    (storage/set-item { :key (str panel "-path") :value path })
-    (recur (async/<! navigations) (async/chan) (async/chan)))
+  (watch-progress panel progress-channel)
+  (dirs/init-directory path response-channel progress-channel)
+  (dispatch [:update-panel panel (async/<! response-channel)])
+  (storage/set-item { :key (str panel "-path") :value path })
+  (recur (async/<! navigations) (async/chan) (async/chan)))
 
 (async/go-loop [{ path :path panel :panel } (async/<! maybe-navigations)]
   (if (async/<! (node/fs-access path))
@@ -50,7 +50,7 @@
         (dispatch [:navigate panel directory-path])
         (dispatch-error [:rename-error-state] item nil error-timeout))
       (dispatch-error [:rename-error-state] item nil error-timeout))
-  (recur (async/<! maybe-renames))))
+    (recur (async/<! maybe-renames))))
 
 (async/go-loop [activation (async/<! file-activations)]
   (electron/open-item activation)

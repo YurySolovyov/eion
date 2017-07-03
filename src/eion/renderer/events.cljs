@@ -17,11 +17,12 @@
   (async/put! maybe-renames maybe-rename)))
 
 (reg-event-db :update-panel (fn [db [_ panel value]]
-  ; TODO re-write to use pairs for assoc-in
-  (-> db
-    (assoc-in [panel :updating] false)
-    (assoc-in [panel :items] value)
-    (assoc-in [panel :selection] #{}))))
+  (update-in db [panel] merge {
+    :updating false
+    :items value
+    :selection #{}
+  })
+))
 
 (reg-event-db :set-active-panel (fn [db [_ value]]
   (assoc db :active-panel value)))
@@ -41,10 +42,10 @@
         selected-count (count selection)]
     (if (= selected-count 1)
       (let [selected (first selection)]
-        (-> db
-          (assoc-in [active-panel :renaming] selected)
-          (assoc-in [active-panel :renamed-value] (selected :name))))
-      ))))
+        (update-in db [active-panel] merge {
+          :renaming selected
+          :renamed-value (selected :name)
+        }))))))
 
 (reg-event-db :update-rename-input (fn [db [_ value]]
   (let [active-panel (get-in db [:active-panel])]
@@ -64,19 +65,19 @@
 (reg-event-db :custom-path-input (fn [db [_ panel value]]
   (assoc-in db [panel :custom-path] value)))
 
-(reg-event-db :activate-dialog (fn [db]
-  (assoc-in db [:show-dialog] true)))
+(reg-event-db :activate-dialog (fn [db [_ value]]
+  (assoc-in db [:dialog-type] value)))
 
 (reg-event-db :deactivate-dialog (fn [db]
-  (assoc-in db [:show-dialog] false)))
+  (assoc-in db [:dialog-type] nil)))
 
 (reg-event-fx :navigation-error-state (fn [{:keys [db]} [_ panel state]]
   (let [custom-path-key (if state :current-path :custom-path)
         new-custom-path (get-in db [panel custom-path-key])]
-    {
-      :db (-> db
-            (assoc-in [panel :navigation-error] state)
-            (assoc-in [panel :custom-path] new-custom-path))
+    { :db (update-in db [panel] merge {
+        :navigation-error state
+        :custom-path new-custom-path
+      })
     })))
 
 (reg-event-fx :try-navigate (fn [{:keys [db]} [_ panel]]
@@ -87,10 +88,11 @@
 
 (reg-event-fx :navigate (fn [{:keys [db]} [_ panel new-path]]
   {
-    :db (-> db
-          (assoc-in [panel :updating] true)
-          (assoc-in [panel :current-path] new-path)
-          (assoc-in [panel :custom-path] new-path))
+    :db (update-in db [panel] merge {
+      :updating true
+      :current-path new-path
+      :custom-path new-path
+    })
     :fetch-panel-items [panel new-path]
   }))
 
@@ -100,12 +102,9 @@
   }))
 
 (reg-event-fx :activate (fn [{:keys [db]} [_ panel item]]
-  (case (:type item)
-    :dir { :dispatch [:navigate panel (:fullpath item)] }
-    {
-      :open-file [(item :fullpath)]
-    })
-  ))
+  (case (item :type)
+    :dir { :dispatch [:navigate panel (item :fullpath)] }
+    { :open-file [(item :fullpath)] })))
 
 (reg-event-fx :perform-rename (fn [{:keys [db]} [_]]
   (let [active-panel (get-in db [:active-panel])
@@ -116,5 +115,4 @@
         :new-name new-name
         :panel active-panel
       }
-    })
-  ))
+    })))

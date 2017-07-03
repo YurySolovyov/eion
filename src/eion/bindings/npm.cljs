@@ -9,6 +9,5 @@
   ([command out-chan]
     (let [promise (.shell execa command)]
       (.then promise (fn [result]
-        (async/put! out-chan result)
-      )))
+      (async/put! out-chan result))))
     out-chan))

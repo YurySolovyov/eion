@@ -18,11 +18,13 @@
 
 (def main-window (atom nil))
 
-(def default-window #js { :width 1000
-                          :heigh 1000
-                          :frame true
-                          :show false
-                          :autoHideMenuBar true })
+(def default-window #js {
+  :width 1000
+  :heigh 1000
+  :frame true
+  :show false
+  :autoHideMenuBar true
+})
 
 (defn create-window [window-props]
   (BrowserWindow. window-props))

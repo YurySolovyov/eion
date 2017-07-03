@@ -1,6 +1,8 @@
 (ns eion.renderer.components
   (:require [re-frame.core :refer [subscribe dispatch]]
             [eion.renderer.subscriptions]
+            [eion.renderer.components.dialogs :as dialogs]
+            [eion.renderer.components.shared :as shared]
             [class-names.core :refer [class-names]]
             [reagent.core :as r]))
 
@@ -13,8 +15,8 @@
   (frequencies (map :type items)))
 
 (defn selected-caption [selected-count bytes]
-  (let [selected-counts (if (= selected-count 0) "" (str "Selected " selected-count " items"))
-        selected-size (if (= bytes 0) "" (str  " of " (format-size bytes) " bytes total"))]
+  (let [selected-counts (if (zero? selected-count) "" (str "Selected " selected-count " items"))
+        selected-size (if (zero? bytes) "" (str  " of " (format-size bytes) " bytes total"))]
     (str selected-counts selected-size)))
 
 (defn selected-file-size [items]
@@ -30,10 +32,10 @@
         dirs-count (int directories)
         items-counts (str file-count " files and " dirs-count " directories.")
         selected-size (selected-file-size selection)]
-      [:div { :class "directory-summary flex mx1" }
-        [:div { :class "counts"} (str total-items items-counts)]
-        [:div { :class "selection"} (selected-caption (count selection) selected-size)]
-      ]))
+    [:div { :class "directory-summary flex mx1" }
+      [:div { :class "counts" } (str total-items items-counts)]
+      [:div { :class "selection" } (selected-caption (count selection) selected-size)]
+    ]))
 
 (defn item-type-class [type]
   (case type
@@ -74,11 +76,8 @@
 (defn on-up-click [panel-name]
   (dispatch [:navigate-up panel-name]))
 
-(defn on-rename-click []
-  (dispatch [:rename]))
-
 (defn on-rename-input-change [event]
-  (dispatch [:update-rename-input (.-value (.-target event)) ]))
+  (dispatch [:update-rename-input (.-value (.-target event))]))
 
 (defn reset-rename []
   (dispatch [:reset-rename]))
@@ -89,15 +88,11 @@
     "Escape" (reset-rename)
     nil))
 
-(defn on-copy-click []
-  (dispatch [:activate-dialog])
-  (println "copy click"))
-
-(defn on-move-click []
-  (println "move click"))
-
-(defn on-delete-click []
-  (println "delete click"))
+(defn on-file-action [action selection]
+  (if-not (zero? (count selection))
+    (case action
+      :rename (dispatch [:rename])
+      (dispatch [:activate-dialog action]))))
 
 (defn on-locations-wheel [scroll-state e]
   (if (> (.-deltaY e) 0)
@@ -119,14 +114,7 @@
               :on-wheel (partial on-locations-wheel scroll-state) }
         [:div { :class "locations-list flex"
                 :style { :margin-left (str @scroll-state "em") } }
-              (for [item items] ^{:key item} [location panel-name item])]])))
-
-(defn directory-progress [panel-name]
-  (let [progress (subscribe [:progress panel-name])
-        percent (* 100 @progress)
-        is-full (= percent 100)]
-    [:div { :class (class-names :directory-progress { :full is-full })
-            :style { :width (str percent "%") } }]))
+          (for [item items] ^{ :key item } [location panel-name item])]])))
 
 (defn directory-item-icon [item]
   (let [type (item :type)
@@ -163,14 +151,15 @@
       [:div { :class "directory-item-name px1" } (item :name)])
     [:div { :class "directory-item-meta flex" }
       [:div { :class "directory-item-ext" } (item :ext)]
-      [:div { :class "directory-item-size" } (item-size-label item) ]]])
+      [:div { :class "directory-item-size" } (item-size-label item)]
+    ]])
 
 (defn directory-list [panel-name]
   (let [items @(subscribe [:panel-items panel-name])
         selection @(subscribe [:selected-items panel-name])
         renaming @(subscribe [:renaming panel-name])]
-    [:div { :class "directory-items"}
-      [:div { :class "directory-list flex"}
+    [:div { :class "directory-items" }
+      [:div { :class "directory-list flex" }
         (for [item items]
           ^{ :key item }
           [directory-item panel-name item {
@@ -182,7 +171,7 @@
   (let [navigation-error (subscribe [:navigation-error panel-name])
         custom-path (subscribe [:custom-path panel-name])
         path-value (str (if (= @custom-path panel-path) panel-path @custom-path))]
-    [:div { :class "directory-path flex"}
+    [:div { :class "directory-path flex" }
       [:div { :class (class-names icon-class :up-button :mdi-chevron-up :m1 :inline-block)
               :on-click (partial on-up-click panel-name) }]
       [:input { :type "text"
@@ -194,11 +183,12 @@
 
 (defn directory-list-header [panel-name]
   (let [current-locations (subscribe [:locations panel-name])
-        panel-path (subscribe [:current-path panel-name])]
+        panel-path (subscribe [:current-path panel-name])
+        scan-progress (subscribe [:progress panel-name])]
     [:div { :class "directory-list-header flex" }
       [locations panel-name @current-locations]
       [directory-path panel-name @panel-path]
-      [directory-progress panel-name]
+      [shared/progress-bar scan-progress]
       [:div { :class "directory-header flex px2" }
         [:div { :class "directory-header-name mx2 px1 flex" } "Name"]
         [:div { :class "directory-header-ext flex" } "Type"]
@@ -216,34 +206,24 @@
     [:div { :class (class-names :panel :flex :p1 :border-box { :active (= @active-panel panel-name) })
             :id panel-name
             :on-click (partial on-panel-click panel-name)}
-      [:div { :class "panel-container" }
-        [directory-list-header panel-name]
-        [directory-list panel-name]
-        [directory-list-footer panel-name]
-      ]
-    ]))
+     [:div {:class "panel-container"}
+      [directory-list-header panel-name]
+      [directory-list panel-name]
+      [directory-list-footer panel-name]]]))
 
-(defn file-action-button [handler label]
-  [:div { :class "file-button p1" :on-click handler } label])
+(defn file-action-button [action label]
+  (let [selection (subscribe [:active-panel-selection])]
+    [:div { :class :file-button :on-click (partial on-file-action action @selection) } label]))
 
-(defn file-buttons [params]
-  (let [active-panel (subscribe [:active-panel])
-        selection (subscribe [:selected-items @active-panel])]
-    [:div#actions { :class "flex"}
-      [:div { :class "file-buttons flex" }
-        [file-action-button on-rename-click "Rename"]
-        [file-action-button on-copy-click     "Copy"]
-        [file-action-button on-move-click     "Move"]
-        [file-action-button on-delete-click "Delete"]
-      ]
-    ]))
-
-(defn dialog-wrapper []
-  (let [dialog-active (subscribe [:show-dialog])
-        dialog-component (subscribe [:dialog-component-type])]
-    [:div { :class (class-names :dialog-wrapper { :active @dialog-active }) }
-      ; [dialog-component]
-    ]))
+(defn file-buttons []
+  [:div#actions {:class "flex"}
+    [:div {:class "file-buttons flex"}
+      [file-action-button :rename "Rename"]
+      [file-action-button :copy     "Copy"]
+      [file-action-button :move     "Move"]
+      [file-action-button :delete "Delete"]
+    ]
+  ])
 
 (defn main []
   [:div#main
@@ -252,5 +232,5 @@
       [panel :right-panel]
     ]
     [file-buttons]
-    [dialog-wrapper]
+    [dialogs/wrapper]
   ])

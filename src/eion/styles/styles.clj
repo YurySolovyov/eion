@@ -1,6 +1,7 @@
 (ns eion.styles.styles
   (:require [garden.def :refer :all]
             [garden.selectors :as s]
+            [garden.color :as color]
             [garden.stylesheet :refer [rule at-font-face]]))
 
 (def high-row {
@@ -17,6 +18,8 @@
 (def theme-full-white "#fff")
 (def theme-text-color "#34495e")
 (def theme-icon-color "#34495e")
+
+(def hover-bg-color (merge (color/as-rgb theme-blue) { :alpha 0.1 }))
 
 (def shadow-for-active (str theme-blue " 0 1px 5px"))
 (def shadow-strong "#999 0 1px 2px")
@@ -46,9 +49,7 @@
     }]
   ]
 
-  [:html {
-    :height "100%"
-  }]
+  [:html { :height "100%" }]
 
   [:body {
     :height "100%"
@@ -89,14 +90,15 @@
     }]
 
     [:.location {
-      :cursor "pointer"
+      :cursor :pointer
       :padding "0 0.75em"
       :min-width "8em"
-      :text-align "center"
+      :text-align :center
       :transition "0.2s"
     }
       [:&:hover {
         :color theme-blue
+        :background-color hover-bg-color
       }]
 
       [:.location-highlight {
@@ -105,12 +107,8 @@
         :transition "0.2s"
       }]
 
-      [:&.current {
-        :color theme-blue
-      }
-        [:.location-highlight {
-          :background-color theme-blue
-        }]
+      [:&.current { :color theme-blue}
+        [:.location-highlight { :background-color theme-blue }]
       ]
     ]
   ]
@@ -134,16 +132,15 @@
         :color theme-blue
       }]
 
-      [:&.error {
-        :color theme-red
-      }]
+      [:&.error { :color theme-red }]
     ]
 
     [:.up-button {
       :border-radius "2px"
       :transition "0.2s"
-      :cursor "pointer"
+      :cursor :pointer
     }
+
       [:&:hover {
         :color theme-full-white
         :background-color theme-blue
@@ -157,27 +154,23 @@
   }]
 
   [:.directory-header high-row
-    [:.directory-header-name {
-      :flex "2"
-    }]
+    [:.directory-header-name { :flex "2" }]
 
     [:.directory-header-ext :.directory-header-size {
       :flex "0.3"
-      :justify-content "flex-end";
+      :justify-content "flex-end"
     }]
   ]
 
-  [:.directory-progress {
+  [:.progress {
     :width "0%"
+    :max-width "100%"
     :height "2px"
     :background-color theme-blue
     :margin-top "-2px"
     :transition "opacity 0.4s"
   }
-    [:&.full {
-      :opacity 0
-    }]
-  ]
+    [:&.full { :opacity 0 }]]
 
   [:.directory-list-footer (merge high-row {
     :border-top (str "1px " theme-white " solid")
@@ -224,6 +217,7 @@
       :color theme-icon-color
       :line-height "4em"
     }
+
       [:&.file {
         :justify-content "center"
         :flex-direction "column"
@@ -251,20 +245,19 @@
         :width "100%"
         :transition "0.2s"
       }
+
         [:&:focus {
           :outline "none"
           :color theme-blue
         }]
 
-        [:&.error {
-          :color theme-red
-        }]
-      ]
+        [:&.error { :color theme-red }]]
     ]
 
     [:.directory-item-meta {
       :flex "1"
     }
+
       [:.directory-item-ext :.directory-item-size {
         :flex "1"
         :text-align "right"
@@ -283,13 +276,16 @@
       :flex-direction :row
       :box-shadow shadow-strong
     }
+
       [:.file-button {
         :transition "0.2s"
         :min-width "100px"
         :text-align :center
+        :line-height 3
       }
         [:&:hover {
           :color theme-blue
+          :background-color hover-bg-color
         }]
       ]
     ]
@@ -304,7 +300,7 @@
     :left 0
     :margin "auto"
     :width "500px"
-    :height "500px"
+    :height "400px"
     :background-color theme-full-white
     :box-shadow shadow-strong
     :outline (str "1px transparent solid")
@@ -314,5 +310,44 @@
       :display "block"
       :outline (str "1px " theme-blue " solid")
     }]
+  ]
+
+  [:.dialog {
+
+  }
+    [:.dialog-header (merge high-row {
+      :font-size "1.5em"
+      :color theme-blue
+    })]
+
+    [:.info-row (merge high-row {
+      :border-bottom (str "1px " theme-white " solid")
+    })
+
+      [:.title {
+        :flex "1"
+      }
+        [:&:after {
+          :content "':'"
+        }]
+      ]
+
+      [:.value { :flex "9" }]
+    ]
+
+    [:.dialog-buttons {
+      :color theme-text-color
+    }
+      [:.dialog-button {
+        :min-width "100px"
+        :cursor :pointer
+        :transition "0.2s"
+      }
+        [:&:hover {
+          :background-color hover-bg-color
+          :color theme-blue
+        }]
+      ]
+    ]
   ]
 )
