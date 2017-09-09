@@ -1,20 +1,28 @@
 (ns eion.renderer.events
   (:require [re-frame.core :refer [reg-event-db reg-event-fx reg-fx]]
             [cljs.core.async :as async]
-            [eion.renderer.channels :refer [navigations maybe-navigations file-activations maybe-renames]]
+            [eion.renderer.channels :as channels]
             [eion.directories.core :refer [path-up]]))
 
 (reg-fx :fetch-panel-items (fn [[panel next-path]]
-  (async/put! navigations { :panel panel :path next-path })))
+  (async/put! channels/navigations { :panel panel :path next-path })))
 
 (reg-fx :open-file (fn [[file-path]]
-  (async/put! file-activations file-path)))
+  (async/put! channels/file-activations file-path)))
 
 (reg-fx :try-navigate (fn [maybe-navigation]
-  (async/put! maybe-navigations maybe-navigation)))
+  (async/put! channels/maybe-navigations maybe-navigation)))
 
 (reg-fx :try-perform-rename (fn [maybe-rename]
-  (async/put! maybe-renames maybe-rename)))
+  (async/put! channels/maybe-renames maybe-rename)))
+
+; TODO: rewrite -fxs above
+(reg-fx :put (fn [[chan payload]]
+  (async/put! chan payload)))
+
+; HACK Don't overuse this, might move this eventually
+(reg-event-db :init-state (fn [db]
+  (assoc-in db [:copying] {})))
 
 (reg-event-db :update-panel (fn [db [_ panel value]]
   (update-in db [panel] merge {
@@ -30,8 +38,8 @@
 (reg-event-db :update-locations (fn [db [_ value]]
   (assoc db :locations value)))
 
-(reg-event-db :update-progress (fn [db [_ panel value]]
-  (assoc-in db [panel :progress] value)))
+(reg-event-db :update-scan-progress (fn [db [_ panel value]]
+  (assoc-in db [panel :scan-progress] value)))
 
 (reg-event-db :select-item (fn [db [_ panel item]]
   (assoc-in db [panel :selection] #{item})))
@@ -70,6 +78,12 @@
 
 (reg-event-db :deactivate-dialog (fn [db]
   (assoc-in db [:dialog-type] nil)))
+
+(reg-event-db :update-copy-progress (fn [db [_ copy-info progress]]
+  (assoc-in db [:copying copy-info :progress] progress)))
+
+(reg-event-db :done-copy (fn [db [_ copy-info]]
+  (update-in db [:copying] dissoc copy-info)))
 
 (reg-event-fx :navigation-error-state (fn [{:keys [db]} [_ panel state]]
   (let [custom-path-key (if state :current-path :custom-path)
@@ -116,3 +130,9 @@
         :panel active-panel
       }
     })))
+
+(reg-event-fx :copy-files (fn [{ :keys [db] } [_ copy-info]]
+  {
+    :db (assoc-in db [:copying copy-info] { :progress 0 })
+    :put [channels/copy-chan copy-info]
+  }))

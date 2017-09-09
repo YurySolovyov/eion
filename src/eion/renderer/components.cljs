@@ -184,7 +184,7 @@
 (defn directory-list-header [panel-name]
   (let [current-locations (subscribe [:locations panel-name])
         panel-path (subscribe [:current-path panel-name])
-        scan-progress (subscribe [:progress panel-name])]
+        scan-progress (subscribe [:scan-progress panel-name])]
     [:div { :class "directory-list-header flex" }
       [locations panel-name @current-locations]
       [directory-path panel-name @panel-path]

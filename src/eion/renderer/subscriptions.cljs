@@ -1,10 +1,9 @@
 (ns eion.renderer.subscriptions
-  (:require-macros [reagent.ratom :refer [reaction]])
   (:require [re-frame.core :refer [reg-sub]]
             [eion.directories.locations :as locations]))
 
 (reg-sub :locations (fn [db [_ panel]]
-  (let [locations (:locations db)
+  (let [locations (db :locations)
         current-path (get-in db [panel :current-path])
         current-location (locations/find-current locations current-path)]
     (mapv (fn [location]
@@ -14,8 +13,8 @@
 (reg-sub :navigation-error (fn [db [_ panel]]
   (get-in db [panel :navigation-error])))
 
-(reg-sub :progress (fn [db [_ panel]]
-  (get-in db [panel :progress])))
+(reg-sub :scan-progress (fn [db [_ panel]]
+  (get-in db [panel :scan-progress])))
 
 (reg-sub :active-panel (fn [db] (db :active-panel)))
 
@@ -44,14 +43,26 @@
 (reg-sub :custom-path (fn [db [_ panel]]
   (get-in db [panel :custom-path])))
 
-(reg-sub :show-dialog (fn [db [_]]
+(reg-sub :show-dialog (fn [db]
   (get-in db [:show-dialog])))
 
-(reg-sub :dialog-type (fn [db [_]]
+(reg-sub :dialog-type (fn [db]
   (get-in db [:dialog-type])))
 
-(reg-sub :from-to (fn [db [_]]
+(reg-sub :from-to (fn [db]
   (let [active-panel (db :active-panel)
         from active-panel
         to (if (= active-panel :right-panel) :left-panel :right-panel)]
     [(db from) (db to)])))
+
+(reg-sub :copy-info
+  :<- [:from-to] ;dependency
+  (fn [[from-panel to-panel]]
+    {
+      :from-path (from-panel :current-path)
+      :to-path (to-panel :current-path)
+      :selection (from-panel :selection)
+    }))
+
+(reg-sub :copy-progress (fn [db [_ copy-info]]
+  (get-in db [:copying copy-info :progress])))

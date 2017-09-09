@@ -5,10 +5,10 @@
             [class-names.core :refer [class-names]]
             [reagent.core :as r]))
 
-(defn on-dialog-ok []
-  (dispatch [:deactivate-dialog]))
+(defn on-dialog-ok [arg]
+  (dispatch [:copy-files arg]))
 
-(defn on-dialog-dismiss []
+(defn on-dialog-dismiss [_]
   (dispatch [:deactivate-dialog]))
 
 (defn info-row [title value]
@@ -16,19 +16,17 @@
     [:span { :class "title" } title]
     [:span { :class "value truncate" :title value } value]])
 
-(defn dialog-buttons []
+(defn dialog-buttons [meta]
   (let [button-class "dialog-button flex justify-center border-box p1"]
     [:div { :class "dialog-buttons flex mt4 justify-end" }
-      [:span { :class button-class :on-click on-dialog-ok } "Ok"]
-      [:span { :class button-class :on-click on-dialog-dismiss } "Cancel"]
+      [:span { :class button-class :on-click (partial on-dialog-ok meta) } "Ok"]
+      [:span { :class button-class :on-click (partial on-dialog-dismiss meta) } "Cancel"]
     ]))
 
 (defn copy []
-  (let [[from-panel to-panel] @(subscribe [:from-to])
-        from-path (from-panel :current-path)
-        to-path (to-panel :current-path)
-        selection (from-panel :selection)
-        progress (r/atom 0.21)] ;TODO replace with real one
+  (let [copy-info @(subscribe [:copy-info])
+        { :keys [from-path to-path selection] } copy-info
+        progress (subscribe [:copy-progress copy-info])]
     [:div { :class "dialog flex flex-column" }
       [:h2 { :class "dialog-header regular center m0" } "Copy"]
       [info-row "From" from-path]
@@ -36,7 +34,7 @@
       [info-row "Items" (count selection)]
       (if-not (zero? @progress) [info-row "Done" (str (* @progress 100) "%")])
       [:div { :class "copy-progress" } [shared/progress-bar progress]]
-      [dialog-buttons]
+      [dialog-buttons copy-info]
     ]))
 
 (defn wrapper []
