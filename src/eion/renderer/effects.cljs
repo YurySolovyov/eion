@@ -20,7 +20,8 @@
 ))
 
 (reg-event-db :set-active-panel (fn [db [_ value]]
-  (assoc db :active-panel value)))
+  (let [inactive-panel (if (= value :right-panel) :left-panel :right-panel)]
+    (merge db { :active-panel value :inactive-panel inactive-panel }))))
 
 (reg-event-db :update-locations (fn [db [_ value]]
   (assoc db :locations value)))
@@ -78,12 +79,10 @@
     }))))
 
 (reg-event-fx :done-copy (fn [{ :keys [db] } [_ copy-info]]
-  (let [active-panel (db :active-panel)
-        other-panel (if (= active-panel :right-panel) :left-panel :right-panel)]
-    {
-      :db (update-in db [:copying] dissoc copy-info)
-      :dispatch [:refresh-panel other-panel]
-    })))
+  {
+    :db (update-in db [:copying] dissoc copy-info)
+    :dispatch [:refresh-panel (db :inactive-panel)]
+  }))
 
 (reg-event-fx :try-navigate (fn [{ :keys [db] } [_ panel]]
   (let [new-path (get-in db [panel :custom-path])]

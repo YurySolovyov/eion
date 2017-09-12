@@ -18,6 +18,8 @@
 
 (reg-sub :active-panel (fn [db] (db :active-panel)))
 
+(reg-sub :inactive-panel (fn [db] (db :inactive-panel)))
+
 (reg-sub :panel-items (fn [db [_ panel]]
   (get-in db [panel :items])))
 
@@ -50,9 +52,8 @@
   (get-in db [:dialog-type])))
 
 (reg-sub :from-to (fn [db]
-  (let [active-panel (db :active-panel)
-        from active-panel
-        to (if (= active-panel :right-panel) :left-panel :right-panel)]
+  (let [from (db :active-panel)
+        to (db :inactive-panel)]
     [(db from) (db to)])))
 
 (reg-sub :copy-info
