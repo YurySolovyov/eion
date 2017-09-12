@@ -1,7 +1,7 @@
 (ns eion.renderer.core
   (:require-macros [cljs.core.async.macros :as async])
   (:require [eion.renderer.components :as components]
-            [eion.renderer.events]
+            [eion.renderer.effects]
             [eion.bindings.node :as node]
             [eion.bindings.storage :as storage]
             [eion.renderer.channels :refer [ipc]]

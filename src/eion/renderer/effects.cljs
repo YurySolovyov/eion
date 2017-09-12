@@ -1,4 +1,4 @@
-(ns eion.renderer.events
+(ns eion.renderer.effects
   (:require [re-frame.core :refer [reg-event-db reg-event-fx reg-fx]]
             [cljs.core.async :as async]
             [eion.renderer.channels :as channels]
