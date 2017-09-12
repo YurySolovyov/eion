@@ -28,7 +28,7 @@
     (recur (async/<! progress))))
 
 (defn watch-copy-progress [copy-info progress]
-  (async/go-loop [value (async/<! progress)]
+  (async/go-loop [value (.-percent (async/<! progress))]
     (dispatch [:update-copy-progress copy-info value])
     (if (< value 1)
       (recur (async/<! progress))
