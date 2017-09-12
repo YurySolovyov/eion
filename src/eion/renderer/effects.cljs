@@ -64,29 +64,30 @@
   (assoc-in db [:dialog-type] value)))
 
 (reg-event-db :deactivate-dialog (fn [db]
-  (assoc-in db [:dialog-type] nil)))
+  (dissoc db :dialog-type)))
 
 (reg-event-db :update-copy-progress (fn [db [_ copy-info progress]]
   (assoc-in db [:copying copy-info :progress] progress)))
 
-(reg-event-db :done-copy (fn [db [_ copy-info]]
-  (update-in db [:copying] dissoc copy-info)))
-
-(reg-event-fx :navigation-error-state (fn [{:keys [db]} [_ panel state]]
+(reg-event-db :navigation-error-state (fn [db [_ panel state]]
   (let [custom-path-key (if state :current-path :custom-path)
         new-custom-path (get-in db [panel custom-path-key])]
+    (update-in db [panel] merge {
+      :navigation-error state
+      :custom-path new-custom-path
+    }))))
+
+(reg-event-fx :done-copy (fn [{ :keys [db] } [_ copy-info]]
+  (let [active-panel (db :active-panel)
+        other-panel (if (= active-panel :right-panel) :left-panel :right-panel)]
     {
-      :db (update-in db [panel] merge {
-        :navigation-error state
-        :custom-path new-custom-path
-      })
+      :db (update-in db [:copying] dissoc copy-info)
+      :dispatch [:refresh-panel other-panel]
     })))
 
 (reg-event-fx :try-navigate (fn [{ :keys [db] } [_ panel]]
   (let [new-path (get-in db [panel :custom-path])]
-    {
-      :put [channels/maybe-navigations { :panel panel :path new-path }]
-    })))
+    { :put [channels/maybe-navigations { :panel panel :path new-path }] })))
 
 (reg-event-fx :navigate (fn [{ :keys [db] } [_ panel new-path]]
   {
@@ -111,13 +112,17 @@
 (reg-event-fx :perform-rename (fn [{ :keys [db] } [_]]
   (let [active-panel (get-in db [:active-panel])
         item (get-in db [active-panel :renaming])
-        new-name (get-in db [active-panel :renamed-value])]
-    { :put [channels/maybe-renames {
-        :item item
-        :new-name new-name
-        :panel active-panel
-      }]})))
+        new-name (get-in db [active-panel :renamed-value])
+        maybe-rename { :item item :new-name new-name :panel active-panel }]
+    { :put [channels/maybe-renames maybe-rename] })))
 
 (reg-event-fx :copy-files (fn [{ :keys [db] } [_ copy-info]]
-  { :db (assoc-in db [:copying copy-info] { :progress 0 })
-    :put [channels/copy-chan copy-info] }))
+  {
+    :db (assoc-in db [:copying copy-info] { :progress 0 })
+    :put [channels/copy-chan copy-info]
+  }))
+
+(reg-event-fx :refresh-panel (fn [{ :keys [db]} [_ panel]]
+  {
+    :dispatch [:navigate panel (get-in db [panel :current-path])]
+  }))
