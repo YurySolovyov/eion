@@ -59,8 +59,6 @@
     :else nil)
   (recur (async/<! key-events)))
 
-(dispatch-sync [:init-state])
-
 (dispatch-sync [:update-panel :left-panel []])
 (dispatch-sync [:update-panel :right-panel []])
 

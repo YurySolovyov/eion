@@ -7,10 +7,6 @@
 (reg-fx :put (fn [[chan payload]]
   (async/put! chan payload)))
 
-; HACK Don't overuse this, might move this eventually
-(reg-event-db :init-state (fn [db]
-  (assoc-in db [:copying] {})))
-
 (reg-event-db :update-panel (fn [db [_ panel value]]
   (update-in db [panel] merge {
     :updating false
