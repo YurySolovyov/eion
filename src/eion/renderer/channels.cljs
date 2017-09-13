@@ -66,7 +66,9 @@
     (recur (async/<! maybe-renames))))
 
 (async/go-loop [{ :keys [selection to-path] :as copy-info } (async/<! copy-chan)]
-  (let [files (mapv :fullpath selection)
+  (let [files (async/<! (dirs/get-files-from-paths selection))
+        files-stats (async/<! (dirs/stat-paths (map dirs/make-dir-item-from-path files) (async/chan 1)))
+        total-size (dirs/total-size files-stats)
         progress-chan (npm/copy-files files to-path)]
     (watch-copy-progress copy-info progress-chan)
     (recur (async/<! copy-chan))))

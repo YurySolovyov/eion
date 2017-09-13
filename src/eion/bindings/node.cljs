@@ -10,6 +10,9 @@
 (defn path-dirname [dir-path]
   (.dirname path dir-path))
 
+(defn path-basename [item-path]
+  (.basename path item-path))
+
 (defn path-resolve [dir-path]
   (.resolve path dir-path))
 

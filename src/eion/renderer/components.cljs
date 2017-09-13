@@ -3,6 +3,7 @@
             [eion.renderer.subscriptions]
             [eion.renderer.components.dialogs :as dialogs]
             [eion.renderer.components.shared :as shared]
+            [eion.directories.core :as dirs]
             [class-names.core :refer [class-names]]
             [reagent.core :as r]))
 
@@ -19,11 +20,6 @@
         selected-size (if (zero? bytes) "" (str  " of " (format-size bytes) " bytes total"))]
     (str selected-counts selected-size)))
 
-(defn selected-file-size [items]
-  (reduce (fn [total item]
-            (+ total (if (= (item :type) :file) (item :size) 0)))
-          0 items))
-
 (defn footer-message [items selection]
   (let [total (count items)
         { files :file directories :dir links :link } (count-by-type items)
@@ -31,7 +27,7 @@
         file-count (int (+ files links))
         dirs-count (int directories)
         items-counts (str file-count " files and " dirs-count " directories.")
-        selected-size (selected-file-size selection)]
+        selected-size (dirs/total-size selection)]
     [:div { :class "directory-summary flex mx1" }
       [:div { :class "counts" } (str total-items items-counts)]
       [:div { :class "selection" } (selected-caption (count selection) selected-size)]

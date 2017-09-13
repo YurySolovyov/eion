@@ -4,7 +4,7 @@
 
 (def cpy (js/require "cpy"))
 (def execa (js/require "execa"))
-(def node-glob (js/require "glob"))
+(def globby (js/require "globby"))
 (def path-to-regexp (js/require "path-to-regexp"))
 
 (defn execa-shell
@@ -25,7 +25,9 @@
       progress-chan)))
 
 (defn glob
-  ([dir] (glob dir (async/chan 1)))
-  ([dir out-chan]
-    (node-glob dir (fn [matches] (async/put! out-chan matches)))
-  out-chan))
+  ([dirs] (glob dirs (async/chan 1)))
+  ([dirs out-chan]
+    (let [dirs-array (into-array dirs)
+          promise (globby dirs-array)]
+      (.then promise (fn [matches] (async/put! out-chan matches)))
+    out-chan)))

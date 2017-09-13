@@ -1,13 +1,23 @@
 (ns eion.directories.core
   (:require-macros [cljs.core.async.macros :as async])
   (:require [cljs.core.async :as async]
-            [eion.bindings.node :as node]))
+            [eion.bindings.node :as node]
+            [eion.bindings.npm :as npm]))
 
 (def concurrency 64)
 (def locked-file-codes #{"EBUSY" "EPERM" "EACCES"})
 
 (defn is-locked [stat]
   (and (instance? js/Error stat) (contains? locked-file-codes (.-code stat))))
+
+(defn is-dir [item] (= (item :type) :dir))
+(defn is-file [item] (not (is-dir item)))
+
+(defn dir-glob [item]
+  (str (item :fullpath) "/**/*"))
+
+(defn total-size [items]
+  (reduce + (map :size (filter is-file items))))
 
 (defn handle-error [e]
   (.warn js/console e))
@@ -31,6 +41,11 @@
   (let [dir (node/path-resolve dir)
         fullpath (node/path-join (node/path-resolve dir) item)]
     { :dir dir :name item :fullpath fullpath }))
+
+(defn make-dir-item-from-path [item-path]
+  (let [dir (node/path-dirname item-path)
+        name (node/path-basename item-path)]
+    { :dir dir :name name :fullpath item-path }))
 
 (defn joined-items [dir items]
   (mapv (partial make-dir-item dir) items))
@@ -61,7 +76,7 @@
     (let [items (async/<! (node/fs-readdir dir-path))]
       (joined-items dir-path items))))
 
-(defn stat-dir-item [progress-chan item out]
+(defn stat-dir-item [item out]
   (async/go
     (let [item-path (node/path-join (item :dir) (item :name))
           stat (async/<! (node/fs-stat item-path))]
@@ -81,11 +96,10 @@
     (let [items-count (count paths)
           out (async/chan items-count)
           in (async/chan items-count)
-          progress (partial track-progress (atom { :total items-count :current 0.0 }) progress-chan)
-          step (partial stat-dir-item progress-chan)]
+          progress (partial track-progress (atom { :total items-count :current 0.0 }) progress-chan)]
       (if (instance? js/Error paths)
         (handle-error paths))
-      (async/pipeline-async concurrency out (comp progress step) in)
+      (async/pipeline-async concurrency out (comp progress stat-dir-item) in)
       (async/onto-chan in paths)
       (async/<! (async/into [] out)))))
 
@@ -98,3 +112,10 @@
   (async/go
     (let [items (async/<! (directory-contents dir-path progress))]
       (async/>! out (resort items)))))
+
+(defn get-files-from-paths [items]
+  (async/go
+    (let [{ dirs :dir files :file } (group-by :type items)
+          dir-globs (mapv dir-glob dirs)
+          nested-files (async/<! (npm/glob dir-globs))]
+      (vec (concat (map :fullpath files) nested-files)))))
