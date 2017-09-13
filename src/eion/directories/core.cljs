@@ -25,14 +25,15 @@
 
 (defn resort [items]
   (let [grouped (group-by split-dir items)]
-    (vec (concat (:dir grouped) (:file grouped)))))
+    (vec (concat (grouped :dir) (grouped :file)))))
+
+(defn make-dir-item [dir item]
+  (let [dir (node/path-resolve dir)
+        fullpath (node/path-join (node/path-resolve dir) item)]
+    { :dir dir :name item :fullpath fullpath }))
 
 (defn joined-items [dir items]
-  (mapv (fn [item] {
-    :dir (node/path-resolve dir)
-    :name item
-    :fullpath (node/path-join (node/path-resolve dir) item)
-  }) (js->clj items)))
+  (mapv (partial make-dir-item dir) items))
 
 (defn item-type [stat]
   (cond
@@ -42,16 +43,16 @@
     (.isSymbolicLink stat) :link))
 
 (defn enhance-file-stat [file stat]
-  (let [ext (node/path-ext (:name file))
+  (let [ext (node/path-ext (file :name))
         cloned-stat (assign-clone stat)]
-    (merge file {:type :file :ext ext} cloned-stat)))
+    (merge file { :type :file :ext ext } cloned-stat)))
 
 (defn enhance-dir-stat [dir stat]
-  (merge dir {:type :dir :ext ""} (assign-clone stat)))
+  (merge dir { :type :dir :ext "" } (assign-clone stat)))
 
 (defn enhance-stat [file stat]
   (condp = (item-type stat)
-    :locked (merge file {:type :locked :ext ""})
+    :locked (merge file { :type :locked :ext "" })
     :file   (enhance-file-stat file stat)
     (enhance-dir-stat file stat)))
 
@@ -62,32 +63,36 @@
 
 (defn stat-dir-item [progress-chan item out]
   (async/go
-    (let [item-path (node/path-join (:dir item) (:name item))
+    (let [item-path (node/path-join (item :dir) (item :name))
           stat (async/<! (node/fs-stat item-path))]
       (async/>! out (enhance-stat item stat))
       (async/close! out))))
 
 (defn track-progress [progress-atom progress-chan item out]
   (async/go
-    (let [current-progress (:current @progress-atom)
-          total (:total @progress-atom)
+    (let [current-progress (@progress-atom :current)
+          total (@progress-atom :total)
           new-progress (inc current-progress)]
       (reset! progress-atom (assoc @progress-atom :current new-progress))
       (async/>! progress-chan (/ new-progress total)))))
 
-(defn directory-contents [dir-path progress-chan]
+(defn stat-paths [paths progress-chan]
   (async/go
-    (let [directory-items (async/<! (read-directory dir-path))
-          items-count (count directory-items)
+    (let [items-count (count paths)
           out (async/chan items-count)
           in (async/chan items-count)
-          progress (partial track-progress (atom {:total items-count :current 0.0}) progress-chan)
+          progress (partial track-progress (atom { :total items-count :current 0.0 }) progress-chan)
           step (partial stat-dir-item progress-chan)]
-      (if (instance? js/Error directory-items)
-        (handle-error directory-items))
+      (if (instance? js/Error paths)
+        (handle-error paths))
       (async/pipeline-async concurrency out (comp progress step) in)
-      (async/onto-chan in directory-items)
+      (async/onto-chan in paths)
       (async/<! (async/into [] out)))))
+
+(defn directory-contents [dir-path progress-chan]
+  (async/go
+    (let [directory-items (async/<! (read-directory dir-path))]
+      (async/<! (stat-paths directory-items progress-chan)))))
 
 (defn init-directory [dir-path out progress]
   (async/go
