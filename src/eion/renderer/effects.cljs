@@ -123,6 +123,7 @@
   }))
 
 (reg-event-fx :refresh-panel (fn [{ :keys [db]} [_ panel]]
-  {
-    :dispatch [:navigate panel (get-in db [panel :current-path])]
-  }))
+  (let [panel-to-refresh (if (nil? panel) (db :active-panel) panel)]
+    {
+      :dispatch [:navigate panel-to-refresh (get-in db [panel-to-refresh :current-path])]
+    })))

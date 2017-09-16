@@ -25,6 +25,9 @@
 (defn rename-shortcut? [event]
   (= (.-key event) "F2"))
 
+(defn refresh? [event]
+  (= (.-key event) "F5"))
+
 (defn dialig-dismiss? [event]
   (= (.-key event) "Escape"))
 
@@ -36,6 +39,9 @@
 
 (defn rename-selected []
   (dispatch [:rename]))
+
+(defn refresh-panel []
+  (dispatch [:refresh-panel]))
 
 (defn dismiss-dialog []
   (dispatch [:deactivate-dialog]))
@@ -56,6 +62,7 @@
     (devtools-toggle? ev) (toggle-dev-tools)
     (rename-shortcut? ev) (rename-selected)
     (dialig-dismiss? ev) (dismiss-dialog)
+    (refresh? ev) (refresh-panel)
     :else nil)
   (recur (async/<! key-events)))
 
