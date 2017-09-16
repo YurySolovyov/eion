@@ -184,7 +184,7 @@
     [:div { :class "directory-list-header flex" }
       [locations panel-name @current-locations]
       [directory-path panel-name @panel-path]
-      [shared/progress-bar scan-progress]
+      [shared/progress-bar @scan-progress]
       [:div { :class "directory-header flex px2" }
         [:div { :class "directory-header-name mx2 px1 flex" } "Name"]
         [:div { :class "directory-header-ext flex" } "Type"]
