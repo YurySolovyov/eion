@@ -68,11 +68,15 @@
       (dispatch-error [:rename-error-state] item nil ui-effect-timeout))
     (recur (async/<! maybe-renames))))
 
-(async/go-loop [{ :keys [selection to-path] :as copy-info } (async/<! copy-chan)]
+(async/go-loop [{ :keys [selection from-path to-path] :as copy-info } (async/<! copy-chan)]
   (let [files (async/<! (dirs/get-files-from-paths selection))
         files-stats (async/<! (dirs/stat-paths (map dirs/make-dir-item-from-path files) (async/chan 1)))
         total-size (dirs/total-size files-stats)
-        progress-chan (npm/copy-files files to-path (async/chan (async/sliding-buffer 16)))]
+        progress-chan (npm/copy-files { :files files
+                                        :dest to-path
+                                        :cpy-options (js-obj "parents" true "cwd" from-path)
+                                        :progress-chan (async/chan (async/sliding-buffer 16)) })]
+    (println files to-path)
     (dispatch [:got-copy-total-size copy-info total-size])
     (watch-copy-progress copy-info progress-chan)
     (recur (async/<! copy-chan))))

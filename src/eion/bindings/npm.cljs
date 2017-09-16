@@ -16,13 +16,12 @@
     out-chan))
 
 (defn copy-files
-  ([files dest] (copy-files files dest (async/chan 1)))
-  ([files dest progress-chan]
+  [{ :keys [files dest cpy-options progress-chan] }]
     (let [files-array (into-array files)
-          promise (cpy files-array dest)]
+          promise (cpy files-array dest cpy-options)]
       (.on promise "progress" (fn [event]
         (async/put! progress-chan event)))
-      progress-chan)))
+      progress-chan))
 
 (defn glob
   ([dirs] (glob dirs (async/chan 1)))

@@ -51,7 +51,7 @@
 (defn make-dir-item-from-path [item-path]
   (let [dir (node/path-dirname item-path)
         name (node/path-basename item-path)]
-    { :dir dir :name name :fullpath item-path }))
+      (make-dir-item dir name)))
 
 (defn joined-items [dir items]
   (mapv (partial make-dir-item dir) items))
