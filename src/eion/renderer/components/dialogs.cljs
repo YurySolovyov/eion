@@ -26,13 +26,14 @@
 (defn copy []
   (let [copy-info @(subscribe [:copy-info])
         { :keys [from-path to-path selection] } copy-info
-        progress (subscribe [:copy-progress copy-info])]
+        progress @(subscribe [:copy-progress copy-info])
+        progress-label (str (.toFixed (* progress 100) 2) "%")]
     [:div { :class "dialog flex flex-column" }
       [:h2 { :class "dialog-header regular center m0" } "Copy"]
       [info-row "From" from-path]
       [info-row "To" to-path]
       [info-row "Items" (count selection)]
-      (if-not (zero? @progress) [info-row "Done" (str (* @progress 100) "%")])
+      (if-not (nil? progress) [info-row "Done" progress-label])
       [:div { :class "copy-progress" } [shared/progress-bar progress]]
       [dialog-buttons copy-info]
     ]))

@@ -28,15 +28,18 @@
     (recur (async/<! progress))))
 
 (defn watch-copy-progress [copy-info progress]
-  (async/go-loop [value (.-percent (async/<! progress))]
-    (dispatch [:update-copy-progress copy-info value])
-    (if (< value 1)
-      (recur (async/<! progress))
-      (do
-        (dispatch [:done-copy copy-info])
-        (async/<! (async/timeout ui-effect-timeout))
-        (dispatch [:deactivate-dialog])))
-    (recur (async/<! progress))))
+  (async/go-loop [progress-event (async/<! progress)]
+    (let [files-percent (.-percent progress-event)
+          progress-map { :total-files (.-totalFiles progress-event)
+                         :completed-files (.-completedFiles progress-event)
+                         :completed-size (.-completedSize progress-event) }]
+     (dispatch [:update-copy-progress copy-info progress-map])
+     (if (< files-percent 1)
+       (recur (async/<! progress))
+       (do
+         (dispatch [:done-copy copy-info])
+         (async/<! (async/timeout ui-effect-timeout))
+         (dispatch [:deactivate-dialog]))))))
 
 (async/go-loop [{ :keys [path panel] } (async/<! navigations)
                 response-channel (async/chan)
@@ -69,7 +72,8 @@
   (let [files (async/<! (dirs/get-files-from-paths selection))
         files-stats (async/<! (dirs/stat-paths (map dirs/make-dir-item-from-path files) (async/chan 1)))
         total-size (dirs/total-size files-stats)
-        progress-chan (npm/copy-files files to-path)]
+        progress-chan (npm/copy-files files to-path (async/chan (async/sliding-buffer 16)))]
+    (dispatch [:got-copy-total-size copy-info total-size])
     (watch-copy-progress copy-info progress-chan)
     (recur (async/<! copy-chan))))
 

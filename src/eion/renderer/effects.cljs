@@ -2,7 +2,7 @@
   (:require [re-frame.core :refer [reg-event-db reg-event-fx reg-fx]]
             [cljs.core.async :as async]
             [eion.renderer.channels :as channels]
-            [eion.directories.core :refer [path-up]]))
+            [eion.directories.core :as dirs]))
 
 (reg-fx :put (fn [[chan payload]]
   (async/put! chan payload)))
@@ -63,8 +63,10 @@
 (reg-event-db :deactivate-dialog (fn [db]
   (dissoc db :dialog-type)))
 
-(reg-event-db :update-copy-progress (fn [db [_ copy-info progress]]
-  (assoc-in db [:copying copy-info :progress] progress)))
+(reg-event-db :update-copy-progress (fn [db [_ copy-info progress-map]]
+  (let [total-size (get-in db [:copying copy-info :total-size])
+        overall-progress (dirs/overall-progress (assoc progress-map :total-size total-size))]
+    (assoc-in db [:copying copy-info :progress] overall-progress))))
 
 (reg-event-db :navigation-error-state (fn [db [_ panel state]]
   (let [custom-path-key (if state :current-path :custom-path)
@@ -73,6 +75,9 @@
       :navigation-error state
       :custom-path new-custom-path
     }))))
+
+(reg-event-db :got-copy-total-size (fn [db [_ copy-info total-size]]
+  (assoc-in db [:copying copy-info :total-size] total-size)))
 
 (reg-event-fx :done-copy (fn [{ :keys [db] } [_ copy-info]]
   {
@@ -96,7 +101,7 @@
 
 (reg-event-fx :navigate-up (fn [{ :keys [db] } [_ panel]]
   {
-    :dispatch [:navigate panel (path-up (get-in db [panel :current-path]))]
+    :dispatch [:navigate panel (dirs/path-up (get-in db [panel :current-path]))]
   }))
 
 (reg-event-fx :activate (fn [{ :keys [db] } [_ panel item]]

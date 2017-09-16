@@ -19,6 +19,12 @@
 (defn total-size [items]
   (reduce + (map :size (filter is-file items))))
 
+(defn overall-progress [{ :keys [completed-size completed-files total-size total-files]}]
+  (let [completed-size-percent (/ completed-size total-size)
+        completed-files-percent (/ completed-files total-files)
+        combined (+ completed-size-percent completed-files-percent)]
+    (if (= total-files 1) completed-size-percent (/ combined 2))))
+
 (defn handle-error [e]
   (.warn js/console e))
 
