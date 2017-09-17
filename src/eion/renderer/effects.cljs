@@ -64,9 +64,7 @@
   (dissoc db :dialog-type)))
 
 (reg-event-db :update-copy-progress (fn [db [_ copy-info progress-map]]
-  (let [total-size (get-in db [:copying copy-info :total-size])
-        overall-progress (dirs/overall-progress (assoc progress-map :total-size total-size))]
-    (assoc-in db [:copying copy-info :progress] overall-progress))))
+  (assoc-in db [:copying copy-info :progress] (dirs/overall-progress progress-map))))
 
 (reg-event-db :navigation-error-state (fn [db [_ panel state]]
   (let [custom-path-key (if state :current-path :custom-path)

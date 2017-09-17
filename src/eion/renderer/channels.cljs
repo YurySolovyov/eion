@@ -4,7 +4,6 @@
             [eion.bindings.electron-renderer :as electron]
             [eion.bindings.storage :as storage]
             [eion.bindings.node :as node]
-            [eion.bindings.npm :as npm]
             [cljs.core.async :as async]
             [re-frame.core :refer [dispatch]]))
 
@@ -28,11 +27,9 @@
     (recur (async/<! progress))))
 
 (defn watch-copy-progress [copy-info progress]
-  (async/go-loop [progress-event (async/<! progress)]
-    (let [files-percent (.-percent progress-event)
-          progress-map { :total-files (.-totalFiles progress-event)
-                         :completed-files (.-completedFiles progress-event)
-                         :completed-size (.-completedSize progress-event) }]
+  (async/go-loop [progress-map (async/<! progress)]
+    (let [{ :keys [completed-size completed-files total-files total-size] } progress-map
+          files-percent (/ completed-files total-files)]
      (dispatch [:update-copy-progress copy-info progress-map])
      (if (< files-percent 1)
        (recur (async/<! progress))
@@ -70,15 +67,12 @@
 
 (async/go-loop [{ :keys [selection from-path to-path] :as copy-info } (async/<! copy-chan)]
   (let [files (async/<! (dirs/get-files-from-paths selection))
-        files-stats (async/<! (dirs/stat-paths (map dirs/make-dir-item-from-path files) (async/chan 1)))
-        total-size (dirs/total-size files-stats)
-        progress-chan (npm/copy-files { :files files
-                                        :dest to-path
-                                        :cpy-options (js-obj "parents" true "cwd" from-path)
-                                        :progress-chan (async/chan (async/sliding-buffer 16)) })]
-    (println files to-path)
-    (dispatch [:got-copy-total-size copy-info total-size])
+        progress-chan (async/chan (async/sliding-buffer 16))]
     (watch-copy-progress copy-info progress-chan)
+    (dirs/copy-files { :files files
+                       :from from-path
+                       :to to-path
+                       :progress-chan progress-chan })
     (recur (async/<! copy-chan))))
 
 (async/go-loop [activation (async/<! file-activations)]

@@ -9,6 +9,7 @@
 (def protocol      (.-protocol electron))
 
 (goog-define dev? false)
+(set! (.-noAsar js/process) true)
 
 (defn index-path []
   (str "file:" (js/process.cwd) "/target/index.html"))

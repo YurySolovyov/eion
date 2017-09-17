@@ -2,10 +2,12 @@
   (:require-macros [cljs.core.async.macros :as async])
   (:require [cljs.core.async :as async]))
 
-(def cpy (js/require "cpy"))
+(def cp-file (js/require "cp-file"))
 (def execa (js/require "execa"))
 (def globby (js/require "globby"))
 (def path-to-regexp (js/require "path-to-regexp"))
+
+(def cp-options (js-obj "overwrite" false))
 
 (defn execa-shell
   ([command] (execa-shell command (async/chan 1)))
@@ -15,13 +17,11 @@
         (async/put! out-chan result))))
     out-chan))
 
-(defn copy-files
-  [{ :keys [files dest cpy-options progress-chan] }]
-    (let [files-array (into-array files)
-          promise (cpy files-array dest cpy-options)]
-      (.on promise "progress" (fn [event]
-        (async/put! progress-chan event)))
-      progress-chan))
+(defn copy-file [form to out-chan progress-fn]
+    (let [promise (cp-file form to cp-options)]
+      (.on promise "progress" progress-fn)
+      (.then promise (fn [] (async/close! out-chan)))
+      out-chan))
 
 (defn glob
   ([dirs] (glob dirs (async/chan 1)))

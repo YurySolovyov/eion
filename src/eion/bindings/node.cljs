@@ -5,22 +5,27 @@
 (def fs (js/require "fs"))
 (def os (js/require "os"))
 
-(def platform (.platform os))
+(set! (.-noAsar js/process) true)
 
-(defn path-dirname [dir-path]
-  (.dirname path dir-path))
+(def platform (.platform os))
 
 (defn path-basename [item-path]
   (.basename path item-path))
 
-(defn path-resolve [dir-path]
-  (.resolve path dir-path))
+(defn path-dirname [dir-path]
+  (.dirname path dir-path))
+
+(defn path-ext [item-path]
+  (.extname path item-path))
 
 (defn path-join [dir-path item]
   (.join path dir-path item))
 
-(defn path-ext [item-path]
-  (.extname path item-path))
+(defn path-relative [from to]
+  (.relative path from to))
+
+(defn path-resolve [dir-path]
+  (.resolve path dir-path))
 
 (defn fs-readdir
   ([dir-path] (fs-readdir dir-path (async/chan 1)))
