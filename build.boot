@@ -9,8 +9,9 @@
                  [cljsjs/localforage            "1.3.1-0"]
                  [degree9/boot-npm              "1.0.0"]
                  [class-names                   "0.1.1"]
-                 [org.clojure/tools.nrepl       "0.2.12"   :scope "test"]
-                 [com.cemerick/piggieback       "0.2.1"    :scope "test"]
+                 [boot-deps                     "0.1.8"]
+                 [org.clojure/tools.nrepl       "0.2.13"   :scope "test"]
+                 [com.cemerick/piggieback       "0.2.2"    :scope "test"]
                  [weasel                        "0.7.0"    :scope "test"]
                  [adzerk/boot-cljs              "2.1.3"    :scope "test"]
                  [adzerk/boot-cljs-repl         "0.3.3"    :scope "test"]
@@ -32,9 +33,8 @@
 
 (deftask dev-build []
   (comp ;; Inject REPL and reloading code into renderer build =======
-    (npm/npm
-      :package "package.edn"
-      :cache-key ::npm-modules)
+    (npm/npm :package "package.edn"
+             :cache-key ::npm-modules)
     (cljs-repl :ids #{"renderer"})
     (reload    :ids #{"renderer"}
                :ws-host "localhost"

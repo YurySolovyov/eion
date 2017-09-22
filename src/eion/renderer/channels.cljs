@@ -7,6 +7,7 @@
             [cljs.core.async :as async]
             [re-frame.core :refer [dispatch]]))
 
+(def file-actions (async/chan))
 (def navigations (async/chan 2))
 (def maybe-navigations (async/chan 2))
 (def copy-chan (async/chan))
@@ -14,6 +15,24 @@
 (def maybe-renames (async/chan))
 (def ipc (async/chan))
 (def ui-effect-timeout 200)
+
+(def file-action-types [
+  :prepare-copy
+  :copy
+])
+
+(def file-actions-publications (async/pub file-actions :type))
+
+(def file-actions-chans
+  (reduce
+    (fn [map action-type]
+      (assoc map action-type (async/sub file-actions-publications action-type (async/chan))))
+    {}
+    file-action-types))
+
+(defn sliding-chan
+  ([] (sliding-chan 16))
+  ([size] (async/chan (async/sliding-buffer size))))
 
 (defn dispatch-error [db-path before after timeout]
   (async/go
@@ -28,15 +47,15 @@
 
 (defn watch-copy-progress [copy-info progress]
   (async/go-loop [progress-map (async/<! progress)]
-    (let [{ :keys [completed-size completed-files total-files total-size] } progress-map
-          files-percent (/ completed-files total-files)]
-     (dispatch [:update-copy-progress copy-info progress-map])
-     (if (< files-percent 1)
-       (recur (async/<! progress))
-       (do
-         (dispatch [:done-copy copy-info])
-         (async/<! (async/timeout ui-effect-timeout))
-         (dispatch [:deactivate-dialog]))))))
+    (if (nil? progress-map)
+      (do
+        (dispatch [:done-copy copy-info])
+        (async/<! (async/timeout ui-effect-timeout))
+        (dispatch [:deactivate-dialog]))
+      (let [{ :keys [dest percent written] } progress-map]
+        (println dest percent written)
+        ; (dispatch [:update-copy-progress copy-info progress-map])
+        (recur (async/<! progress))))))
 
 (async/go-loop [{ :keys [path panel] } (async/<! navigations)
                 response-channel (async/chan)
@@ -65,13 +84,11 @@
       (dispatch-error [:rename-error-state] item nil ui-effect-timeout))
     (recur (async/<! maybe-renames))))
 
-(async/go-loop [{ :keys [selection from-path to-path] :as copy-info } (async/<! copy-chan)]
-  (let [files (async/<! (dirs/get-files-from-paths selection))
-        progress-chan (async/chan (async/sliding-buffer 16))]
+(async/go-loop [{ :keys [copy-map copy-info] } (async/<! copy-chan)]
+  (let [{ :keys [files] } copy-map
+        progress-chan (sliding-chan)]
     (watch-copy-progress copy-info progress-chan)
     (dirs/copy-files { :files files
-                       :from from-path
-                       :to to-path
                        :progress-chan progress-chan })
     (recur (async/<! copy-chan))))
 
@@ -82,3 +99,10 @@
 (async/go-loop [ipc-event (async/<! ipc)]
   (electron/send-to-main ipc-event)
   (recur (async/<! ipc)))
+
+(async/go-loop [action (async/<! (file-actions-chans :prepare-copy))]
+  ; TODO: Watch and report scannig progress
+  (let [progress-chan (sliding-chan)
+        copy-map (async/<! (dirs/prepare-copy action progress-chan))]
+    (dispatch [:got-pre-copy-info copy-map])
+    (recur (async/<! (file-actions-chans :prepare-copy)))))

@@ -129,46 +129,42 @@
       (vec (concat (map :fullpath files) nested-files)))))
 
 (defn resolve-dest [from to item]
-  (let [relative-path (node/path-relative from (item :fullpath))
-        new-path (node/path-join to relative-path)]
-    (assoc item :dest new-path)))
+  (let [relative-path (node/path-relative from (item :fullpath))]
+    (assoc item :dest (node/path-join to relative-path))))
 
-(defn aggregate-completed [completed _ file-map]
-  (let [percent (file-map :percent)
-        written (file-map :written)]
-    { :completed-size (+ (completed :completed-size) written)
-      :completed-files (+ (completed :completed-files) (if (= 1 percent) 1 0))
-    }))
-
-(defn copy-progress-fn [atom progress-chan event]
-  (let [progress-map @atom
-        src (.-src event)
+(defn copy-progress-fn [progress-chan event]
+  (let [dest (.-dest event)
         percent (.-percent event)
-        written (.-written event)
-        files-map (assoc (progress-map :files) src { :written written
-                                                     :percent percent })
-        aggregate-initial { :completed-size 0 :completed-files 0 }
-        completed-map (reduce-kv aggregate-completed aggregate-initial files-map)]
-    (async/put! progress-chan (merge progress-map { :files files-map } completed-map))))
+        written (.-written event)]
+    (async/put! progress-chan { :dest dest :percent percent :written written })))
 
-(defn copy-files [{ :keys [files from to progress-chan]}]
+(defn copy-files [{ :keys [files progress-chan]}]
   (async/go
-    (let [stat-progress-chan (async/chan (async/sliding-buffer concurrency))
-          items-stats (async/<! (stat-paths (map make-dir-item-from-path files) stat-progress-chan))
-          files-stats (filterv (fn [item] (not (= :dir (item :type)))) items-stats)
-          resolved-destinations (mapv (partial resolve-dest from to) files-stats)
-          total-files (count files-stats)
-          total-size (total-size files-stats)
-          progress-atom (atom { :total-files total-files
-                                :total-size total-size
-                                :completed-size 0
-                                :completed-files 0
-                                :files {} })
-          progress-fn (partial copy-progress-fn progress-atom progress-chan)
+    (let [total-files (count files)
+          progress-fn (partial copy-progress-fn progress-chan)
           copy-fn (fn [{ :keys [fullpath dest] } out]
                     (npm/copy-file fullpath dest out progress-fn))
           in (async/chan total-files)
           out (async/chan total-files)]
       (async/pipeline-async concurrency out copy-fn in)
-      (async/onto-chan in resolved-destinations)
-      progress-chan)))
+      (async/onto-chan in files)
+      (async/<! (async/into #{} out))
+      (async/close! progress-chan))))
+
+(defn reduce-copy-map [map item]
+  (assoc map (item :dest) {:percent 0 :written 0 }))
+
+(defn prepare-copy [{ :keys [selection from-path to-path] } progress]
+  (async/go
+    (let [items (async/<! (get-files-from-paths selection))
+          ; TODO Use transducer here somehow?
+          items-stats (async/<! (stat-paths (map make-dir-item-from-path items) progress))
+          files-stats (filterv is-file items-stats)
+          resolved-destinations (mapv (partial resolve-dest from-path to-path) files-stats)]
+      { :total-files (count files-stats)
+        :total-size (total-size files-stats)
+        :completed-files 0
+        :completed-size 0
+        :progress 0
+        :files resolved-destinations
+        :status-map (reduce reduce-copy-map {} items-stats) })))

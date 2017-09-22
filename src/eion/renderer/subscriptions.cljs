@@ -52,6 +52,7 @@
   (get-in db [:dialog-type])))
 
 (reg-sub :from-to (fn [db]
+  ; TODO make these keys refer to the actual panels maps
   (let [from (db :active-panel)
         to (db :inactive-panel)]
     [(db from) (db to)])))

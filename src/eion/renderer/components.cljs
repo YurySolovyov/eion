@@ -1,6 +1,5 @@
 (ns eion.renderer.components
   (:require [re-frame.core :refer [subscribe dispatch]]
-            [eion.renderer.subscriptions]
             [eion.renderer.components.dialogs :as dialogs]
             [eion.renderer.components.shared :as shared]
             [eion.directories.core :as dirs]

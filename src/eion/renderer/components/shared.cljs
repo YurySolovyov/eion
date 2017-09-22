@@ -1,6 +1,5 @@
 (ns eion.renderer.components.shared
-  (:require [class-names.core :refer [class-names]]
-            [reagent.core :as r]))
+  (:require [class-names.core :refer [class-names]]))
 
 (defn progress-bar [progress]
   (let [percent (* 100 progress)
