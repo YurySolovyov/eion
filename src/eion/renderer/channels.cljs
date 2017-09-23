@@ -50,11 +50,9 @@
     (if (nil? progress-map)
       (do
         (dispatch [:done-copy copy-info])
-        (async/<! (async/timeout ui-effect-timeout))
         (dispatch [:deactivate-dialog]))
       (let [{ :keys [dest percent written] } progress-map]
-        (println dest percent written)
-        ; (dispatch [:update-copy-progress copy-info progress-map])
+        (dispatch [:update-copy-progress copy-info progress-map])
         (recur (async/<! progress))))))
 
 (async/go-loop [{ :keys [path panel] } (async/<! navigations)
@@ -100,9 +98,9 @@
   (electron/send-to-main ipc-event)
   (recur (async/<! ipc)))
 
-(async/go-loop [action (async/<! (file-actions-chans :prepare-copy))]
+(async/go-loop [copy-info (async/<! (file-actions-chans :prepare-copy))]
   ; TODO: Watch and report scannig progress
   (let [progress-chan (sliding-chan)
-        copy-map (async/<! (dirs/prepare-copy action progress-chan))]
-    (dispatch [:got-pre-copy-info copy-map])
+        result-chan (dirs/prepare-copy copy-info progress-chan)]
+    (dispatch [:got-pre-copy-info (async/<! result-chan)])
     (recur (async/<! (file-actions-chans :prepare-copy)))))

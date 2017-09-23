@@ -163,8 +163,5 @@
           resolved-destinations (mapv (partial resolve-dest from-path to-path) files-stats)]
       { :total-files (count files-stats)
         :total-size (total-size files-stats)
-        :completed-files 0
-        :completed-size 0
-        :progress 0
         :files resolved-destinations
         :status-map (reduce reduce-copy-map {} items-stats) })))
