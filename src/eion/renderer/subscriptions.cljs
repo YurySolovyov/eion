@@ -1,5 +1,5 @@
 (ns eion.renderer.subscriptions
-  (:require [re-frame.core :refer [reg-sub]]
+  (:require [re-frame.core :refer [subscribe reg-sub]]
             [eion.directories.core :as dirs]
             [eion.directories.locations :as locations]))
 
@@ -67,15 +67,20 @@
       :selection (from-panel :selection)
     }))
 
-(reg-sub :copy-progress (fn [db [_ copy-info]]
-  (let [{ :keys [status-map total-size total-files] } (get-in db [:copying copy-info])
-        aggregate-initial { :completed-size 0 :completed-files 0 }
-        aggregate-completed (fn [completed _ file-map]
-          (let [{ :keys [written percent] } file-map
-                { :keys [completed-size completed-files] } completed]
-            { :completed-size (+ completed-size written)
-              :completed-files (+ completed-files (if (= 1 percent) 1 0)) }))
-        completed-map (reduce-kv aggregate-completed aggregate-initial status-map)
-        merged-map (merge completed-map { :total-size total-size
-                                          :total-files total-files })]
-    (if (nil? status-map) 0 (dirs/overall-progress merged-map)))))
+(reg-sub :copying (fn [db [_ copy-info]]
+  (get-in db [:copying copy-info])))
+
+(reg-sub :copy-progress
+  (fn [[_ copy-info]] (subscribe [:copying copy-info]))
+  (fn [copy-state]
+    (let [{ :keys [status-map total-size total-files] } copy-state
+          aggregate-initial { :completed-size 0 :completed-files 0 }
+          aggregate-completed (fn [completed _ file-map]
+            (let [{ :keys [written percent] } file-map
+                  { :keys [completed-size completed-files] } completed]
+              { :completed-size (+ completed-size written)
+                :completed-files (+ completed-files (if (= 1 percent) 1 0)) }))
+          completed-map (reduce-kv aggregate-completed aggregate-initial status-map)
+          merged-map (merge completed-map { :total-size total-size
+                                            :total-files total-files })]
+      (if (nil? status-map) 0 (dirs/overall-progress merged-map)))))
