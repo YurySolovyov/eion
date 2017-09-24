@@ -1,5 +1,4 @@
 (ns eion.bindings.npm
-  (:require-macros [cljs.core.async.macros :as async])
   (:require [cljs.core.async :as async]))
 
 (def cp-file (js/require "cp-file"))
