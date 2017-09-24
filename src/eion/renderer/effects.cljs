@@ -37,6 +37,9 @@
 (reg-event-db :update-scan-progress (fn [db [_ panel value]]
   (assoc-in db [panel :scan-progress] value)))
 
+(reg-event-db :update-pre-copy-scan-progress (fn [db [_ value]]
+  (assoc-in db [:pre-actions :copy :scan-progress] value)))
+
 (reg-event-db :select-item (fn [db [_ panel item]]
   (assoc-in db [panel :selection] #{item})))
 
@@ -70,7 +73,7 @@
   (assoc-in db [panel :custom-path] value)))
 
 (reg-event-db :deactivate-dialog (fn [db]
-  (dissoc db :dialog-type)))
+  (dissoc db :dialog-type :pre-actions)))
 
 (reg-event-db :update-copy-progress (fn [db [_ copy-info progress-map]]
   (update-in db [:copying copy-info :status-map (progress-map :dest)] merge progress-map)))

@@ -16,6 +16,16 @@
       (on-dialog-dismiss type meta)
       (handler meta))))
 
+(defn progress-label [value]
+  (if (nil? value) "" (str (.toFixed (* value 100)) "%")))
+
+(defn scannig-label [pre-copy-info]
+  (let [pre-copy-progress (if (nil? pre-copy-info) 0 (pre-copy-info :scan-progress))]
+    (cond
+      (= pre-copy-progress 0) " Scanning..."
+      (= pre-copy-progress 1) (str " (" (pre-copy-info :total-files) " items inside)")
+      (> pre-copy-progress 0) (str " Scanning..." (progress-label pre-copy-progress)))))
+
 (defn info-row [title value]
   [:div { :class "info-row flex px1" }
     [:span { :class "title" } title]
@@ -32,13 +42,14 @@
   (let [copy-info @(subscribe [:copy-info])
         { :keys [from-path to-path selection] } copy-info
         progress @(subscribe [:copy-progress copy-info])
-        progress-label (str (.toFixed (* progress 100) 2) "%")]
+        selected-count (count selection)
+        pre-copy-info @(subscribe [:pre-action-info :copy])]
     [:div { :class "dialog flex flex-column" }
       [:h2 { :class "dialog-header regular center m0" } "Copy"]
       [info-row "From" from-path]
       [info-row "To" to-path]
-      [info-row "Items" (count selection)]
-      (if-not (nil? progress) [info-row "Done" progress-label])
+      [info-row "Items" (str selected-count " selected" (scannig-label pre-copy-info))]
+      (if-not (nil? progress) [info-row "Done" (progress-label progress)])
       [:div { :class "copy-progress" } [shared/progress-bar progress]]
       [dialog-buttons :copy copy-info]
     ]))

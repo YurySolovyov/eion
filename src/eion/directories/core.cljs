@@ -164,4 +164,5 @@
       { :total-files (count files-stats)
         :total-size (total-size files-stats)
         :files resolved-destinations
+        :scan-progress 1 ; at this point we know all we need
         :status-map (reduce reduce-copy-map {} items-stats) })))

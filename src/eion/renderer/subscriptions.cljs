@@ -84,3 +84,6 @@
           merged-map (merge completed-map { :total-size total-size
                                             :total-files total-files })]
       (if (nil? status-map) 0 (dirs/overall-progress merged-map)))))
+
+(reg-sub :pre-action-info (fn [db [_ type]]
+  (get-in db [:pre-actions type])))

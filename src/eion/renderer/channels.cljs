@@ -55,6 +55,11 @@
         (dispatch [:update-copy-progress copy-info progress-map])
         (recur (async/<! progress))))))
 
+(defn watch-pre-copy-scan-progress [progress]
+  (async/go-loop [value (async/<! progress)]
+    (dispatch [:update-pre-copy-scan-progress value])
+    (recur (async/<! progress))))
+
 (async/go-loop [{ :keys [path panel] } (async/<! navigations)
                 response-channel (async/chan)
                 progress-channel (async/chan)]
@@ -102,5 +107,6 @@
   ; TODO: Watch and report scannig progress
   (let [progress-chan (sliding-chan)
         result-chan (dirs/prepare-copy copy-info progress-chan)]
+    (watch-pre-copy-scan-progress progress-chan)
     (dispatch [:got-pre-copy-info (async/<! result-chan)])
     (recur (async/<! (file-actions-chans :prepare-copy)))))
