@@ -7,10 +7,14 @@
             [cljs.core.async :as async]
             [re-frame.core :refer [dispatch]]))
 
+; TODO: Make this a map? like: { :channel-name channel-size | nil }
+; and where nil means unbuffered ones (TODO: do we even need unbuffered channels?)
+; and make them initialize declaratively
 (def file-actions (async/chan))
 (def navigations (async/chan 2))
 (def maybe-navigations (async/chan 2))
 (def copy-chan (async/chan))
+(def move-chan (async/chan))
 (def file-activations (async/chan))
 (def maybe-renames (async/chan))
 (def ipc (async/chan))

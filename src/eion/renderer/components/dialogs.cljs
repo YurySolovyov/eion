@@ -5,6 +5,7 @@
 
 (def submit-handlers {
   :copy (fn [meta] (dispatch [:copy-files meta]))
+  :move (fn [meta] (dispatch [:move-files meta]))
 })
 
 (defn on-dialog-dismiss [type _]

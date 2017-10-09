@@ -144,6 +144,15 @@
       :put [channels/copy-chan { :copy-map copy-map :copy-info copy-info }]
     })))
 
+(reg-event-fx :move-files (fn [{ :keys [db] } [_ move-info]]
+  (let [move-map (get-in db [:pre-actions :move])]
+    {
+      :db (-> db
+            (update-in [:pre-actions] dissoc :move)
+            (assoc-in [:moving move-info] move-map))
+      :put [channels/move-chan { :move-map move-map :move-info move-info }]
+    })))
+
 (reg-event-fx :refresh-panel (fn [{ :keys [db]} [_ panel]]
   (let [panel-to-refresh (if (nil? panel) (db :active-panel) panel)]
     {
