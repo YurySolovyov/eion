@@ -58,8 +58,18 @@
         to (db :inactive-panel)]
     [(db from) (db to)])))
 
+; TODO this is copy-paste, but let's not hurry extracting it
+(reg-sub :move-info
+  :<- [:from-to]
+  (fn [[from-panel to-panel]]
+    {
+      :from-path (from-panel :current-path)
+      :to-path (to-panel :current-path)
+      :selection (from-panel :selection)
+    }))
+
 (reg-sub :copy-info
-  :<- [:from-to] ;dependency
+  :<- [:from-to]
   (fn [[from-panel to-panel]]
     {
       :from-path (from-panel :current-path)
@@ -84,6 +94,15 @@
           merged-map (merge completed-map { :total-size total-size
                                             :total-files total-files })]
       (if (nil? status-map) 0 (dirs/overall-progress merged-map)))))
+
+(reg-sub :moving (fn [db [_ move-info]]
+  (get-in db [:moving move-info])))
+
+(reg-sub :move-progress
+  (fn [[_ move-info]] (subscribe [:moving move-info]))
+  (fn [move-state]
+    (let [{ :keys [status-map total-size total-files] } move-state]
+      0.42)))
 
 (reg-sub :pre-action-info (fn [db [_ type]]
   (get-in db [:pre-actions type])))

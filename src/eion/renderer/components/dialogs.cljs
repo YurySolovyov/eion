@@ -54,10 +54,26 @@
       [dialog-buttons :copy copy-info]
     ]))
 
+(defn move [params]
+  (let [move-info @(subscribe [:move-info])
+        { :keys [from-path to-path selection] } move-info
+        progress @(subscribe [:move-progress move-info])
+        selected-count (count selection)
+        pre-move-info @(subscribe [:pre-action-info :move])]
+    [:div { :class "dialog flex flex-column" }
+      [:h2 { :class "dialog-header regular center m0" } "Move"]
+      [info-row "From" from-path]
+      [info-row "To" to-path]
+      [info-row "Items" (str selected-count " selected" (scannig-label pre-move-info))]
+      (if-not (nil? progress) [info-row "Done" (progress-label progress)])
+      [dialog-buttons :move move-info]
+    ]))
+
 (defn wrapper []
   (let [dialog-type (subscribe [:dialog-type])
         is-active (some? @dialog-type)]
     [:div { :class (class-names :dialog-wrapper :p1 :border-box { :active is-active }) }
       [(case @dialog-type
         :copy copy
+        :move move
         :span)]]))
