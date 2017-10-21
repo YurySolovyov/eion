@@ -1,48 +1,50 @@
 (set-env!
- :source-paths   #{"src"}
- :resource-paths #{"resources"}
- :dependencies '[[org.clojure/clojurescript     "1.9.946"]
-                 [org.clojure/core.async        "0.3.443"]
-                 [reagent                       "0.7.0"]
-                 [re-frame                      "0.10.2"]
-                 [org.martinklepsch/boot-garden "1.3.2-0"]
-                 [cljsjs/localforage            "1.3.1-0"]
-                 [degree9/boot-npm              "1.0.0"]
-                 [class-names                   "0.1.1"]
-                 [boot-deps                     "0.1.8"]
-                 [org.clojure/tools.nrepl       "0.2.13"   :scope "test"]
-                 [com.cemerick/piggieback       "0.2.2"    :scope "test"]
-                 [weasel                        "0.7.0"    :scope "test"]
-                 [adzerk/boot-cljs              "2.1.4"    :scope "test"]
-                 [adzerk/boot-cljs-repl         "0.3.3"    :scope "test"]
-                 [adzerk/boot-reload            "0.5.2"    :scope "test"]])
+  :source-paths   #{"src"}
+  :resource-paths #{"resources"}
+  :dependencies '[[org.clojure/clojurescript     "1.9.946"]
+                  [org.clojure/core.async        "0.3.443"]
+                  [reagent                       "0.7.0"]
+                  [re-frame                      "0.10.2"]
+                  [org.martinklepsch/boot-garden "1.3.2-0"]
+                  [cljsjs/localforage            "1.3.1-0"]
+                  [degree9/boot-npm              "1.0.0"]
+                  [class-names                   "0.1.1"]
+                  [boot-deps                     "0.1.8"]
+                  [org.clojure/tools.nrepl       "0.2.13"   :scope "test"]
+                  [com.cemerick/piggieback       "0.2.2"    :scope "test"]
+                  [weasel                        "0.7.0"    :scope "test"]
+                  [adzerk/boot-cljs              "2.1.4"    :scope "test"]
+                  [adzerk/boot-cljs-repl         "0.3.3"    :scope "test"]
+                  [adzerk/boot-reload            "0.5.2"    :scope "test"]])
 
 (require
   '[adzerk.boot-cljs              :refer [cljs]]
   '[adzerk.boot-cljs-repl         :refer [cljs-repl start-repl]]
   '[adzerk.boot-reload            :refer [reload]]
   '[org.martinklepsch.boot-garden :refer [garden]]
-  '[degree9.boot-npm              :as    npm])
+  '[degree9.boot-npm              :as    npm]
+  '[boot-deps                     :refer [ancient]])
 
-(deftask prod-build []
-  (comp (cljs :ids #{"main"}
-              :optimizations :simple)
-        (cljs :ids #{"renderer"}
-              :optimizations :advanced))
-        (garden))
+(deftask check-deps [] (ancient))
 
-(deftask dev-build []
-  (comp ;; Inject REPL and reloading code into renderer build =======
+(deftask dev []
+  (comp
     (npm/npm :package "package.edn"
              :cache-key ::npm-modules)
+
+    (watch)
+
     (cljs-repl :ids #{"renderer"})
+
     (reload    :ids #{"renderer"}
                :ws-host "localhost"
                :on-jsload 'eion.renderer.core/on-jsload
                :target-path "target")
-    ; Compile renderer =========================================
+
+
     (cljs      :ids #{"renderer"}
                :compiler-options { :parallel-build true })
+
     ;; Compile JS for main process ==============================
     ;; path.resolve(".") which is used in CLJS's node shim
     ;; returns the directory `electron` was invoked in and
@@ -57,4 +59,5 @@
     (garden :styles-var 'eion.styles.styles/base
             :output-to  "styles.css"
             :pretty-print true)
+
     (target)))
