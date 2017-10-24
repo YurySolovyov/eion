@@ -102,6 +102,7 @@
   (fn [[_ move-info]] (subscribe [:moving move-info]))
   (fn [move-state]
     (let [{ :keys [status-map total-size total-files] } move-state]
+      ; TODO generalize :copy-progress or write a new one
       0.42)))
 
 (reg-sub :pre-action-info (fn [db [_ type]]

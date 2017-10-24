@@ -23,6 +23,8 @@
 (def file-action-types [
   :prepare-copy
   :copy
+  :prepare-move
+  :move
 ])
 
 (def file-actions-publications (async/pub file-actions :type))
@@ -59,9 +61,20 @@
         (dispatch [:update-copy-progress copy-info progress-map])
         (recur (async/<! progress))))))
 
-(defn watch-pre-copy-scan-progress [progress]
+; TODO: generalize
+(defn watch-move-progress [move-info progress]
+  (async/go-loop [progress-map (async/<! progress)]
+    (if (nil? progress-map)
+      (do
+        (dispatch [:done-move move-info])
+        (dispatch [:deactivate-dialog]))
+      (let [{ :keys [dest percent written] } progress-map]
+        (dispatch [:update-move-progress move-info progress-map])
+        (recur (async/<! progress))))))
+
+(defn watch-pre-action-scan-progress [event progress]
   (async/go-loop [value (async/<! progress)]
-    (dispatch [:update-pre-copy-scan-progress value])
+    (dispatch [event value])
     (recur (async/<! progress))))
 
 (async/go-loop [{ :keys [path panel] } (async/<! navigations)
@@ -91,6 +104,14 @@
       (dispatch-error [:rename-error-state] item nil ui-effect-timeout))
     (recur (async/<! maybe-renames))))
 
+(async/go-loop [copy-info (async/<! (file-actions-chans :prepare-copy))]
+  ; TODO: Watch and report scannig progress
+  (let [progress-chan (sliding-chan)
+        result-chan (dirs/prepare-copy copy-info progress-chan)]
+    (watch-pre-action-scan-progress :update-pre-copy-scan-progress progress-chan)
+    (dispatch [:got-pre-copy-info (async/<! result-chan)])
+    (recur (async/<! (file-actions-chans :prepare-copy)))))
+
 (async/go-loop [{ :keys [copy-map copy-info] } (async/<! copy-chan)]
   (let [{ :keys [files] } copy-map
         progress-chan (sliding-chan)]
@@ -99,6 +120,23 @@
                        :progress-chan progress-chan })
     (recur (async/<! copy-chan))))
 
+(async/go-loop [move-info (async/<! (file-actions-chans :prepare-move))]
+  ; TODO: Watch and report scannig progress
+  (let [progress-chan (sliding-chan)
+        ; TODO: prepare-copy does the right thing, rename later
+        result-chan (dirs/prepare-copy move-info progress-chan)]
+    (watch-pre-action-scan-progress :update-pre-move-scan-progress progress-chan)
+    (dispatch [:got-pre-move-info (async/<! result-chan)])
+    (recur (async/<! (file-actions-chans :prepare-move)))))
+
+(async/go-loop [{ :keys [move-map move-info] } (async/<! move-chan)]
+  (let [{ :keys [files] } move-map
+        progress-chan (sliding-chan)]
+    (watch-move-progress move-info progress-chan)
+    (dirs/move-files { :files files
+                       :progress-chan progress-chan })
+    (recur (async/<! move-chan))))
+
 (async/go-loop [activation (async/<! file-activations)]
   (electron/open-item activation)
   (recur (async/<! file-activations)))
@@ -106,11 +144,3 @@
 (async/go-loop [ipc-event (async/<! ipc)]
   (electron/send-to-main ipc-event)
   (recur (async/<! ipc)))
-
-(async/go-loop [copy-info (async/<! (file-actions-chans :prepare-copy))]
-  ; TODO: Watch and report scannig progress
-  (let [progress-chan (sliding-chan)
-        result-chan (dirs/prepare-copy copy-info progress-chan)]
-    (watch-pre-copy-scan-progress progress-chan)
-    (dispatch [:got-pre-copy-info (async/<! result-chan)])
-    (recur (async/<! (file-actions-chans :prepare-copy)))))

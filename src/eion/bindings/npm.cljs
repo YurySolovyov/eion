@@ -16,11 +16,14 @@
         (async/put! out-chan result))))
     out-chan))
 
-(defn copy-file [form to out-chan progress-fn]
-  (let [promise (cp-file form to cp-options)]
-    (.on promise "progress" progress-fn)
-    (.then promise (fn [] (async/close! out-chan)))
-    out-chan))
+(defn copy-file
+  ([from to out-chan progress-fn]
+    (copy-file from to out-chan progress-fn (fn [] (async/close! out-chan))))
+  ([from to out-chan progress-fn then]
+    (let [promise (cp-file from to cp-options)]
+      (.on promise "progress" progress-fn)
+      (.then promise then)
+      out-chan)))
 
 (defn glob
   ([dirs] (glob dirs (async/chan 1)))

@@ -138,19 +138,6 @@
         written (.-written event)]
     (async/put! progress-chan { :dest dest :percent percent :written written })))
 
-(defn copy-files [{ :keys [files progress-chan]}]
-  (async/go
-    (let [total-files (count files)
-          progress-fn (partial copy-progress-fn progress-chan)
-          copy-fn (fn [{ :keys [fullpath dest] } out]
-                    (npm/copy-file fullpath dest out progress-fn))
-          in (async/chan total-files)
-          out (async/chan total-files)]
-      (async/pipeline-async concurrency out copy-fn in)
-      (async/onto-chan in files)
-      (async/<! (async/into #{} out))
-      (async/close! progress-chan))))
-
 (defn reduce-copy-map [map item]
   (assoc map (item :dest) {:percent 0 :written 0 }))
 
@@ -166,3 +153,46 @@
         :files resolved-destinations
         :scan-progress 1 ; at this point we know all we need
         :status-map (reduce reduce-copy-map {} items-stats) })))
+
+(defn copy-files [{ :keys [files progress-chan]}]
+  (async/go
+    (let [total-files (count files)
+          progress-fn (partial copy-progress-fn progress-chan)
+          copy-fn (fn [{ :keys [fullpath dest] } out]
+                    (npm/copy-file fullpath dest out progress-fn))
+          in (async/chan total-files)
+          out (async/chan total-files)]
+      (async/pipeline-async concurrency out copy-fn in)
+      (async/onto-chan in files)
+      (async/<! (async/into #{} out))
+      (async/close! progress-chan))))
+
+; TODO: find a better place for this
+(defn move-or-copy-with-unlink [file from to out-chan progress-fn]
+  (async/go
+    (let [renamed (async/<! (node/fs-rename from to))]
+      (if renamed
+        (do
+          ; TODO this is doing back-and-forth conversion do something about it?
+          (async/>! out-chan #js { :dest to :percent 1 :written (file :size) })
+          (async/close! out-chan))
+        (do
+          (async/<! (npm/copy-file from to out-chan progress-fn))
+          (async/<! (node/fs-unlink from))
+          (async/close! out-chan)))))
+  out-chan)
+
+
+(defn move-files [{ :keys [files progress-chan]}]
+  (async/go
+    (let [total-files (count files)
+          ; TODO copy-progress-fn doing what we need, just rename later
+          progress-fn (partial copy-progress-fn progress-chan)
+          move-fn (fn [{ :keys [fullpath dest] :as file } out]
+                    (move-or-copy-with-unlink file fullpath dest out progress-fn))
+          in (async/chan total-files)
+          out (async/chan total-files)]
+      (async/pipeline-async concurrency out move-fn in)
+      (async/onto-chan in files)
+      (async/<! (async/into #{} out))
+      (async/close! progress-chan))))

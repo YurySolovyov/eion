@@ -62,3 +62,12 @@
         (async/put! out-chan (if err false true))
         (async/close! out-chan)))
     out-chan))
+
+(defn fs-unlink
+  ([item-path] (fs-unlink item-path (async/chan 1)))
+  ([item-path out-chan]
+    (.unlink fs item-path
+      (fn [err]
+        (async/put! out-chan (if err false true))
+        (async/close! out-chan)))
+    out-chan))

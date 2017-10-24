@@ -40,6 +40,9 @@
 (reg-event-db :update-pre-copy-scan-progress (fn [db [_ value]]
   (assoc-in db [:pre-actions :copy :scan-progress] value)))
 
+(reg-event-db :update-pre-move-scan-progress (fn [db [_ value]]
+  (assoc-in db [:pre-actions :move :scan-progress] value)))
+
 (reg-event-db :select-item (fn [db [_ panel item]]
   (assoc-in db [panel :selection] #{item})))
 
@@ -78,6 +81,10 @@
 (reg-event-db :update-copy-progress (fn [db [_ copy-info progress-map]]
   (update-in db [:copying copy-info :status-map (progress-map :dest)] merge progress-map)))
 
+; TODO: generalize with --^
+(reg-event-db :update-move-progress (fn [db [_ move-info progress-map]]
+  (update-in db [:moving move-info :status-map (progress-map :dest)] merge progress-map)))
+
 (reg-event-db :navigation-error-state (fn [db [_ panel state]]
   (let [custom-path-key (if state :current-path :custom-path)
         new-custom-path (get-in db [panel custom-path-key])]
@@ -89,9 +96,20 @@
 (reg-event-db :got-pre-copy-info (fn [db [_ info]]
   (assoc-in db [:pre-actions :copy] info)))
 
+(reg-event-db :got-pre-move-info (fn [db [_ info]]
+  (assoc-in db [:pre-actions :move] info)))
+
 (reg-event-fx :done-copy (fn [{ :keys [db] } [_ copy-info]]
   {
     :db (update-in db [:copying] dissoc copy-info)
+    :dispatch [:refresh-panel (db :inactive-panel)]
+  }))
+
+; TODO: generalize with --^
+(reg-event-fx :done-move (fn [{ :keys [db] } [_ move-info]]
+  {
+    :db (update-in db [:moving] dissoc move-info)
+    ; TODO refresh both panels
     :dispatch [:refresh-panel (db :inactive-panel)]
   }))
 
