@@ -196,9 +196,17 @@
       (async/<! (async/into #{} out))
       (async/close! progress-chan))))
 
-(defn delete-files [{ :keys [files progress-chan] }]
+(defn delete-permanently []
+  (println "Deleting permanently..."))
+
+(defn delete-to-trash []
+  (println "Moving to trash..."))
+
+(defn delete-files [{ :keys [files progress-chan _permanent] }]
   (async/go
-    (let [total-files (count files)]
-      (println "Deleting...")
+    (let [total-files (count files)
+          permanent true ; TODO: temporary override
+          deleting-fn (if permanent delete-permanently delete-to-trash)]
+      (deleting-fn)
       (async/close! progress-chan)
     )))
