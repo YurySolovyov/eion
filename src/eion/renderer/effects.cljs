@@ -102,15 +102,14 @@
 (reg-event-fx :done-copy (fn [{ :keys [db] } [_ copy-info]]
   {
     :db (update-in db [:copying] dissoc copy-info)
-    :dispatch [:refresh-panel (db :inactive-panel)]
+    :dispatch [:refresh-panels (db :inactive-panel)]
   }))
 
 ; TODO: generalize with --^
 (reg-event-fx :done-move (fn [{ :keys [db] } [_ move-info]]
   {
     :db (update-in db [:moving] dissoc move-info)
-    ; TODO refresh both panels
-    :dispatch [:refresh-panel (db :inactive-panel)]
+    :dispatch [:refresh-panels]
   }))
 
 (reg-event-fx :activate-dialog (fn [{ :keys [db] } [_ value]]
@@ -175,4 +174,11 @@
   (let [panel-to-refresh (if (nil? panel) (db :active-panel) panel)]
     {
       :dispatch [:navigate panel-to-refresh (get-in db [panel-to-refresh :current-path])]
+    })))
+
+(reg-event-fx :refresh-panels (fn [{ :keys [db]} [_ maybe-panels]]
+  (let [panels (if (nil? maybe-panels) [:left-panel :right-panel] maybe-panels)
+        navigations (map (fn [panel] [:refresh-panel panel]) panels)]
+    {
+      :dispatch-n navigations
     })))
