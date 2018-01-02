@@ -1,5 +1,4 @@
 (ns eion.directories.locations
-  (:require-macros [cljs.core.async.macros :as async])
   (:require [cljs.core.async :as async]
             [clojure.string :refer [split split-lines trim]]
             [eion.bindings.npm :as npm]

@@ -2,11 +2,11 @@
   :source-paths   #{"src"}
   :resource-paths #{"resources"}
   :dependencies '[[org.clojure/clojurescript     "1.9.946"]
-                  [org.clojure/core.async        "0.3.443"]
+                  [org.clojure/core.async        "0.3.465"]
                   [reagent                       "0.7.0"]
                   [re-frame                      "0.10.2"]
                   [org.martinklepsch/boot-garden "1.3.2-0"]
-                  [cljsjs/localforage            "1.3.1-0"]
+                  [cljsjs/localforage            "1.5.3-0"]
                   [degree9/boot-npm              "1.0.0"]
                   [class-names                   "0.1.1"]
                   [boot-deps                     "0.1.8"]

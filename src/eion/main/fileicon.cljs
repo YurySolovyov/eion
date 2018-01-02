@@ -1,5 +1,4 @@
 (ns eion.main.fileicon
-  (:require-macros [cljs.core.async.macros :as async])
   (:require [cljs.core.async :as async]
             [eion.bindings.electron-main :as electron]))
 

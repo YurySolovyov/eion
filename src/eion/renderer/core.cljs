@@ -1,5 +1,4 @@
 (ns eion.renderer.core
-  (:require-macros [cljs.core.async.macros :as async])
   (:require [eion.renderer.effects]
             [eion.renderer.subscriptions]
             [eion.renderer.components :as components]

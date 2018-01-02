@@ -1,5 +1,4 @@
 (ns eion.directories.core
-  (:require-macros [cljs.core.async.macros :as async])
   (:require [cljs.core.async :as async]
             [eion.bindings.node :as node]
             [eion.bindings.npm :as npm]))
