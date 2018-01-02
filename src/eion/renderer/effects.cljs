@@ -176,7 +176,7 @@
       :dispatch [:navigate panel-to-refresh (get-in db [panel-to-refresh :current-path])]
     })))
 
-(reg-event-fx :refresh-panels (fn [{ :keys [db]} [_ maybe-panels]]
+(reg-event-fx :refresh-panels (fn [{ :keys [db]} [_ & maybe-panels]]
   (let [panels (if (nil? maybe-panels) [:left-panel :right-panel] maybe-panels)
         navigations (map (fn [panel] [:refresh-panel panel]) panels)]
     {

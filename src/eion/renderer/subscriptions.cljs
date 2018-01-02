@@ -101,9 +101,18 @@
 (reg-sub :move-progress
   (fn [[_ move-info]] (subscribe [:moving move-info]))
   (fn [move-state]
-    (let [{ :keys [status-map total-size total-files] } move-state]
-      ; TODO generalize :copy-progress or write a new one
-      0.42)))
+    ; TODO: complete copy-paste from above, needs DRY
+    (let [{ :keys [status-map total-size total-files] } move-state
+          aggregate-initial { :completed-size 0 :completed-files 0 }
+          aggregate-completed (fn [completed _ file-map]
+            (let [{ :keys [written percent] } file-map
+                  { :keys [completed-size completed-files] } completed]
+              { :completed-size (+ completed-size written)
+                :completed-files (+ completed-files (if (= 1 percent) 1 0)) }))
+          completed-map (reduce-kv aggregate-completed aggregate-initial status-map)
+          merged-map (merge completed-map { :total-size total-size
+                                            :total-files total-files })]
+      (if (nil? status-map) 0 (dirs/overall-progress merged-map)))))
 
 (reg-sub :pre-action-info (fn [db [_ type]]
   (get-in db [:pre-actions type])))

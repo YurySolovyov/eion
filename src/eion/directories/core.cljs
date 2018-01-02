@@ -151,7 +151,7 @@
         :total-size (total-size files-stats)
         :files resolved-destinations
         :scan-progress 1 ; at this point we know all we need
-        :status-map (reduce reduce-copy-map {} items-stats) })))
+        :status-map (reduce reduce-copy-map {} resolved-destinations) })))
 
 (defn copy-files [{ :keys [files progress-chan]}]
   (async/go
