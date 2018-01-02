@@ -4,8 +4,10 @@
             [class-names.core :refer [class-names]]))
 
 (def submit-handlers {
-  :copy (fn [meta] (dispatch [:copy-files meta]))
-  :move (fn [meta] (dispatch [:move-files meta]))
+  ; TODO: these should be *-items, not "files"
+  :copy   (fn [meta] (dispatch [:copy-files meta]))
+  :move   (fn [meta] (dispatch [:move-files meta]))
+  :delete (fn [meta] (dispatch [:delete-files meta]))
 })
 
 (defn on-dialog-dismiss [type _]
@@ -55,7 +57,7 @@
       [dialog-buttons :copy copy-info]
     ]))
 
-(defn move [params]
+(defn move []
   (let [move-info @(subscribe [:move-info])
         { :keys [from-path to-path selection] } move-info
         progress @(subscribe [:move-progress move-info])
@@ -70,6 +72,21 @@
       [dialog-buttons :move move-info]
     ]))
 
+(defn delete []
+  (let [delete-info @(subscribe [:delete-info])
+        { :keys [from-path selection permanent] } delete-info
+        progress @(subscribe [:delete-progress delete-info])
+        selected-count (count selection)
+        pre-delete-info @(subscribe [:pre-action-info :delete])]
+    [:div { :class "dialog flex flex-column" }
+      [:h2 { :class "dialog-header regular center m0" }
+        (if permanent "Permanently delete" "Delete")]
+      [info-row "From" from-path]
+      [info-row "Items" (str selected-count " selected" (scannig-label pre-delete-info))]
+      (if-not (nil? progress) [info-row "Done" (progress-label progress)])
+      [dialog-buttons :delete delete-info]
+    ]))
+
 (defn wrapper []
   (let [dialog-type (subscribe [:dialog-type])
         is-active (some? @dialog-type)]
@@ -77,4 +94,5 @@
       [(case @dialog-type
         :copy copy
         :move move
+        :delete delete
         :span)]]))

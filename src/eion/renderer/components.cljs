@@ -83,11 +83,15 @@
     "Escape" (reset-rename)
     nil))
 
-(defn on-file-action [action selection]
+(defn on-file-action [action selection event]
   (if-not (zero? (count selection))
     (case action
       :rename (dispatch [:rename])
-      (dispatch [:activate-dialog action]))))
+      (do
+        (.persist event) ; make sure React won't reuse it
+        (dispatch [:save-dialog-activation-event event])
+        (dispatch [:activate-dialog action])
+        ))))
 
 (defn on-locations-wheel [scroll-state e]
   (if (> (.-deltaY e) 0)

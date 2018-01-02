@@ -43,6 +43,9 @@
 (reg-event-db :update-pre-move-scan-progress (fn [db [_ value]]
   (assoc-in db [:pre-actions :move :scan-progress] value)))
 
+(reg-event-db :update-pre-delete-scan-progress (fn [db [_ value]]
+  (assoc-in db [:pre-actions :delete :scan-progress] value)))
+
 (reg-event-db :select-item (fn [db [_ panel item]]
   (assoc-in db [panel :selection] #{item})))
 
@@ -76,7 +79,7 @@
   (assoc-in db [panel :custom-path] value)))
 
 (reg-event-db :deactivate-dialog (fn [db]
-  (dissoc db :dialog-type :pre-actions)))
+  (dissoc db :dialog-type :pre-actions :dialog-activation-event)))
 
 (reg-event-db :update-copy-progress (fn [db [_ copy-info progress-map]]
   (update-in db [:copying copy-info :status-map (progress-map :dest)] merge progress-map)))
@@ -99,6 +102,12 @@
 (reg-event-db :got-pre-move-info (fn [db [_ info]]
   (assoc-in db [:pre-actions :move] info)))
 
+(reg-event-db :got-pre-delete-info (fn [db [_ info]]
+  (assoc-in db [:pre-actions :delete] info)))
+
+(reg-event-db :save-dialog-activation-event (fn [db [_ event]]
+  (assoc-in db [:dialog-activation-event] event)))
+
 (reg-event-fx :done-copy (fn [{ :keys [db] } [_ copy-info]]
   {
     :db (update-in db [:copying] dissoc copy-info)
@@ -110,6 +119,13 @@
   {
     :db (update-in db [:moving] dissoc move-info)
     :dispatch [:refresh-panels]
+  }))
+
+; TODO: generalize with --^
+(reg-event-fx :done-delete (fn [{ :keys [db] } [_ delete-info]]
+  {
+    :db (update-in db [:moving] dissoc delete-info)
+    :dispatch [:refresh-panel]
   }))
 
 (reg-event-fx :activate-dialog (fn [{ :keys [db] } [_ value]]
@@ -168,6 +184,15 @@
             (update-in [:pre-actions] dissoc :move)
             (assoc-in [:moving move-info] move-map))
       :put [channels/move-chan { :move-map move-map :move-info move-info }]
+    })))
+
+(reg-event-fx :delete-files (fn [{ :keys [db] } [_ delete-info]]
+  (let [delete-map (get-in db [:pre-actions :delete])]
+    {
+      :db (-> db
+            (update-in [:pre-actions] dissoc :delete)
+            (assoc-in [:deleting delete-info] delete-map))
+      :put [channels/delete-chan { :delete-map delete-map :delete-info delete-info }]
     })))
 
 (reg-event-fx :refresh-panel (fn [{ :keys [db]} [_ panel]]

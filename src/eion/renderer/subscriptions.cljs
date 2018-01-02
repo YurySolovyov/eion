@@ -52,6 +52,9 @@
 (reg-sub :dialog-type (fn [db]
   (get-in db [:dialog-type])))
 
+(reg-sub :dialog-activation-event (fn [db]
+  (get-in db [:dialog-activation-event])))
+
 (reg-sub :from-to (fn [db]
   ; TODO make these keys refer to the actual panels maps
   (let [from (db :active-panel)
@@ -77,6 +80,18 @@
       :selection (from-panel :selection)
     }))
 
+(reg-sub :delete-info
+  :<- [:from-to]
+  :<- [:dialog-activation-event]
+  (fn [[panels event] _]
+    (let [[from-panel _] panels
+          permanent-remove (.-shiftKey event)]
+      {
+        :from-path (from-panel :current-path)
+        :permanent permanent-remove
+        :selection (from-panel :selection)
+      })))
+
 (reg-sub :copying (fn [db [_ copy-info]]
   (get-in db [:copying copy-info])))
 
@@ -98,6 +113,9 @@
 (reg-sub :moving (fn [db [_ move-info]]
   (get-in db [:moving move-info])))
 
+(reg-sub :deleting (fn [db [_ delete-info]]
+  (get-in db [:deleting delete-info])))
+
 (reg-sub :move-progress
   (fn [[_ move-info]] (subscribe [:moving move-info]))
   (fn [move-state]
@@ -113,6 +131,11 @@
           merged-map (merge completed-map { :total-size total-size
                                             :total-files total-files })]
       (if (nil? status-map) 0 (dirs/overall-progress merged-map)))))
+
+(reg-sub :delete-progress
+  (fn [[_ delete-info]] (subscribe [:deleting delete-info]))
+  (fn [delete-state]
+    0.42))
 
 (reg-sub :pre-action-info (fn [db [_ type]]
   (get-in db [:pre-actions type])))

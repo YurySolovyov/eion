@@ -14,6 +14,7 @@
 (def maybe-navigations (async/chan 2))
 (def copy-chan (async/chan))
 (def move-chan (async/chan))
+(def delete-chan (async/chan))
 (def file-activations (async/chan))
 (def maybe-renames (async/chan))
 (def ipc (async/chan))
@@ -24,6 +25,8 @@
   :copy
   :prepare-move
   :move
+  :prepare-delete
+  :delete
 ])
 
 (def file-actions-publications (async/pub file-actions :type))
@@ -69,6 +72,17 @@
         (dispatch [:deactivate-dialog]))
       (let [{ :keys [dest percent written] } progress-map]
         (dispatch [:update-move-progress move-info progress-map])
+        (recur (async/<! progress))))))
+
+; TODO: generalize
+(defn watch-delete-progress [delete-info progress]
+  (async/go-loop [progress-map (async/<! progress)]
+    (if (nil? progress-map)
+      (do
+        (dispatch [:done-delete delete-info])
+        (dispatch [:deactivate-dialog]))
+      (let [{ :keys [dest percent written] } progress-map]
+        (dispatch [:update-delete-progress delete-info progress-map])
         (recur (async/<! progress))))))
 
 (defn watch-pre-action-scan-progress [event progress]
@@ -135,6 +149,24 @@
     (dirs/move-files { :files files
                        :progress-chan progress-chan })
     (recur (async/<! move-chan))))
+
+(async/go-loop [delete-info (async/<! (file-actions-chans :prepare-delete))]
+  ; TODO: Watch and report scannig progress
+  (let [progress-chan (sliding-chan)
+        ; TODO: prepare-copy does the right thing, rename later
+        result-chan (dirs/prepare-copy delete-info progress-chan)]
+    (watch-pre-action-scan-progress :update-pre-delete-scan-progress progress-chan)
+    (dispatch [:got-pre-delete-info (async/<! result-chan)])
+    (recur (async/<! (file-actions-chans :prepare-delete)))))
+
+(async/go-loop [{ :keys [delete-map delete-info] } (async/<! delete-chan)]
+  (let [{ :keys [files permanent] } delete-map
+        progress-chan (sliding-chan)]
+    (watch-delete-progress delete-info progress-chan)
+    (dirs/delete-files { :files files
+                         :permanent permanent
+                         :progress-chan progress-chan })
+    (recur (async/<! delete-chan))))
 
 (async/go-loop [activation (async/<! file-activations)]
   (electron/open-item activation)

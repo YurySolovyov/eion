@@ -195,3 +195,10 @@
       (async/onto-chan in files)
       (async/<! (async/into #{} out))
       (async/close! progress-chan))))
+
+(defn delete-files [{ :keys [files progress-chan] }]
+  (async/go
+    (let [total-files (count files)]
+      (println "Deleting...")
+      (async/close! progress-chan)
+    )))
