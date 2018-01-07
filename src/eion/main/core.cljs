@@ -1,5 +1,6 @@
 (ns eion.main.core
-  (:require [eion.main.fileicon :as fileicon]))
+  (:require [eion.main.fileicon :as fileicon]
+            [eion.bindings.electron-main :as em]))
 
 (def electron      (js/require "electron"))
 (def path          (js/require "path"))
@@ -44,12 +45,17 @@
 (defn deref-main []
   (reset! main-window nil))
 
+(defn move-item-to-trash [event item-path]
+  (let [success (em/move-to-trash item-path)]
+    (.send (.-sender event) "move-item-to-trash" item-path success)))
+
 (defn init-browser []
   (reset! main-window (create-window default-window))
   (load-page @main-window)
   (.on @main-window "closed" deref-main)
   (.on ipc "toggle-dev-tools" toggle-dev-tools)
-  (.on ipc "ready" show-main))
+  (.on ipc "ready" show-main)
+  (.on ipc "move-item-to-trash" move-item-to-trash))
 
 (defn init []
   (enable-console-print!)

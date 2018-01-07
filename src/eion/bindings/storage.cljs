@@ -5,7 +5,7 @@
 
 (def options #js { :driver (.-INDEXEDDB js/localforage) :name "eion" })
 
-(defn set-item [{key :key value :value}]
+(defn set-item [{ :keys [key value] }]
   (.setItem js/localforage key value))
 
 (defn get-item

@@ -1,6 +1,7 @@
 (ns eion.directories.core
   (:require [cljs.core.async :as async]
             [eion.bindings.node :as node]
+            [eion.bindings.electron-renderer :as electron]
             [eion.bindings.npm :as npm]))
 
 (def concurrency 64)
@@ -199,14 +200,16 @@
 (defn delete-permanently []
   (println "Deleting permanently..."))
 
-(defn delete-to-trash []
-  (println "Moving to trash..."))
+(defn delete-to-trash [items]
+  (js/console.time "delete-async")
+  (doseq [{ fullpath :fullpath } items] (electron/move-to-trash-main fullpath))
+  (js/console.timeEnd "delete-async"))
 
-(defn delete-files [{ :keys [files progress-chan _permanent] }]
+(defn delete-files [{ :keys [files progress-chan selection _permanent] }]
   (async/go
     (let [total-files (count files)
-          permanent true ; TODO: temporary override
+          permanent false ; TODO: temporary override
           deleting-fn (if permanent delete-permanently delete-to-trash)]
-      (deleting-fn)
+      (deleting-fn selection)
       (async/close! progress-chan)
     )))

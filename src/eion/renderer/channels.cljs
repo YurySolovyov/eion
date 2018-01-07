@@ -161,10 +161,11 @@
 
 (async/go-loop [{ :keys [delete-map delete-info] } (async/<! delete-chan)]
   (let [{ :keys [files permanent] } delete-map
-        { :keys [permanent] } delete-info
+        { :keys [permanent selection] } delete-info
         progress-chan (sliding-chan)]
     (watch-delete-progress delete-info progress-chan)
     (dirs/delete-files { :files files
+                         :selection selection
                          :permanent permanent
                          :progress-chan progress-chan })
     (recur (async/<! delete-chan))))
