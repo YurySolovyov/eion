@@ -10,5 +10,7 @@
   (async/go
     (let [parsed    (.-query (.parse url (.-url request)))
           file-path (.-path (.parse querystring parsed))
-          icon      (async/<! (electron/get-file-icon file-path))]
-      (callback (.toPNG icon)))))
+          icon      (async/<! (electron/get-file-icon file-path))
+          ; TODO: why js-obj works fine, but #js fails?
+          response  (js-obj "mimeType" "image/png" "data" (.toPNG icon))]
+      (callback response))))

@@ -121,7 +121,7 @@
     (case type
       :dir [:div { :class (class-names :directory-item-type :center type-class) }]
       [:div { :class "directory-item-type file flex" }
-        [:img { :src (str "icon://file?path=" (item :fullpath)) }]])))
+        [:img { :src (str "icon://file.png?path=" (item :fullpath)) }]])))
 
 (defn editable-item-name [panel-name item]
   (let [item-name (subscribe [:renamed-value panel-name])

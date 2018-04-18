@@ -1,10 +1,10 @@
 (set-env!
   :source-paths   #{"src"}
   :resource-paths #{"resources"}
-  :dependencies '[[org.clojure/clojurescript     "1.9.946"]
-                  [org.clojure/core.async        "0.3.465"]
+  :dependencies '[[org.clojure/clojurescript     "1.10.238"]
+                  [org.clojure/core.async        "0.4.474"]
                   [reagent                       "0.7.0"]
-                  [re-frame                      "0.10.2"]
+                  [re-frame                      "0.10.5"]
                   [org.martinklepsch/boot-garden "1.3.2-0"]
                   [cljsjs/localforage            "1.5.3-0"]
                   [degree9/boot-npm              "1.0.0"]
